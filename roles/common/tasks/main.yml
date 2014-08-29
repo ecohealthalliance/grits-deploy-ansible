@@ -1,0 +1,19 @@
+---
+
+- name: Install common packages from apt
+  apt: pkg={{item}} state=installed
+  sudo: True
+  with_items:
+    - git
+    - make
+    - python-pip
+    - python-dev
+    - supervisor
+
+- name: Install global python modules
+  pip: name={{item}}
+  sudo: True
+  with_items:
+    - awscli
+    - virtualenv
+

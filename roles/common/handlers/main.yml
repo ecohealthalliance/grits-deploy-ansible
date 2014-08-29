@@ -1,0 +1,5 @@
+---
+
+- name: reload supervisor
+  command: supervisorctl update
+  sudo: True

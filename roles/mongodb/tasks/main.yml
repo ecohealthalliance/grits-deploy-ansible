@@ -1,0 +1,26 @@
+---
+
+- name: Uninstall conflicting packages
+  apt: name={{item}} state=absent force=yes purge=yes
+  with_items:
+  - "{{ mongod_conflicts }}"
+  notify:
+    - Purge mongo dependencies
+
+- name: Install the apt key for ubuntu
+  apt_key: id=7F0CEB10 url="http://docs.mongodb.org/10gen-gpg-key.asc"
+
+- name: Install the repository for Ubuntu mongodb
+  apt_repository: repo="deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen" state=present
+
+#- name: Create the data directory for the mongod
+#  file: path={{ mongod_dbdir }} owner={{ mongo_user }} group={{ mongo_group }} state=directory
+
+- name: Install the mongodb package
+  apt: name=mongodb-org state=installed update_cache=yes
+
+#- name: Create the mongodb configuration file
+#  template: src=mongod.conf.j2 dest=/etc/mongod.conf
+
+- name: Start the mongodb service for Ubuntu variants
+  service: name=mongod state=started

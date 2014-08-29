@@ -1,0 +1,4 @@
+---
+
+- name: Purge mongo dependencies
+  command: apt-get -y autoremove

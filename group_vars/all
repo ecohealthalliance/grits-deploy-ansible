@@ -1,0 +1,6 @@
+
+install_user: ubuntu
+install_prefix: "/home/{{install_user}}"
+
+mongod_datadir_prefix: "{{install_prefix}}/data/db"
+mongod_port: 27017
