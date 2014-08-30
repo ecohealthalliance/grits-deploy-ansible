@@ -1,12 +1,5 @@
 ---
 
-mongo_user: mongodb
-mongo_group: mongodb
-mongod_dbdir: /data/db/
-mongod_iface: '{{ ansible_default_ipv4.interface }}'
-mongod_port: 27017
-mongod_log: /var/log/mongod.log
-
 mongod_conflicts:
   - mongo-10gen
   - mongo-10gen-enterprise

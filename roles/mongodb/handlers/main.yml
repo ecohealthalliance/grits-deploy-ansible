@@ -2,3 +2,6 @@
 
 - name: Purge mongo dependencies
   command: apt-get -y autoremove
+
+- name: Restart mongod
+  service: name=mongod state=restarted
