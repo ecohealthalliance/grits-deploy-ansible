@@ -17,3 +17,8 @@
     - awscli
     - virtualenv
 
+- name: Create grits group
+  user: name={{ grits_group }}
+
+- name: Create grits user
+  user: name={{ grits_user }} group={{ grits_group }} shell=/bin/bash

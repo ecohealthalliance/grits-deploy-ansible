@@ -3,5 +3,10 @@
 - hosts: all
   roles:
     - common
-    - { role: mongodb, sudo: yes }
-
+    - postfix
+    - mongodb
+    - node
+    - s3restore
+  vars_files:
+    - secure.yml
+  sudo: yes

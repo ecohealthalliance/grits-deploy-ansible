@@ -1,6 +1,6 @@
+---
 
-install_user: ubuntu
+s3_mongo_import_directory: diagnosedHMData
+grits_user: grits
+grits_group: grits
 install_prefix: "/home/{{install_user}}"
-
-mongod_datadir_prefix: "{{install_prefix}}/data/db"
-mongod_port: 27017

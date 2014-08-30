@@ -1,0 +1,21 @@
+---
+
+- name: Install aws client application
+  apt: name=awscli
+
+- name: Create aws crendentials directory
+  file: path=/home/{{ grits_user }}/.aws state=directory owner={{ grits_user }} group={{ grits_group }}
+
+- name: Create aws credentials
+  template: src=config.j2 dest=/home/{{ grits_user }}/.aws/config owner={{ grits_user }} group={{ grits_group }}
+
+- name: Create database directory
+  file: path=/home/{{ grits_user }}/dump state=directory owner={{ grits_user }} group={{ grits_group }}
+
+- name: Update girder data from s3
+  command: aws s3 sync --recursive s3://girder-data/{{ s3_mongo_import_directory }} /home/{{ grits_user }}/dump
+  args:
+    creates: /home/{{ grits_user }}/dump/girder
+  sudo: yes
+  sudo_user: "{{ grits_user }}"
+  notify: Import girder data from dump

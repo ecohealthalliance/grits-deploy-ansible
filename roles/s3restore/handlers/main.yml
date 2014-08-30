@@ -1,0 +1,4 @@
+---
+
+- name: Import girder data from dump
+  command: mongorestore /home/{{ grits_user }}/dump
