@@ -1,10 +1,7 @@
 ---
 
-- name: Add key for ppa:chris-lea/node.js
-  apt_key: keyserver=keyserver.ubuntu.com id=C7917B12
-
 - name: Add ppa:chris-lea/node.js
-  apt_repository: repo="deb http://ppa.launchpad.net/chris-lea/node.js/ubuntu {{ ansible_distribution_release }} main"
+  apt_repository: repo='ppa:chris-lea/node.js'
 
 - name: Install node with dependencies
   apt: name={{item}} state=installed
