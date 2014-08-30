@@ -1,0 +1,6 @@
+[program:girder]
+command=/opt/girder/env/bin/python -m girder
+directory=/opt/girder
+user={{ grits_user }}
+autostart=true
+autorestart=unexpected

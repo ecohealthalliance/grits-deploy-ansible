@@ -1,0 +1,11 @@
+[global]
+server.socket_host: "{{ girder_socket_host }}"
+server.socket_port: {{ girder_socket_port }}
+tools.proxy.on: True
+tools.proxy.base: "{{ apache_url }}{{ girder_mount_path }}"
+tools.proxy.local: ""
+
+[server]
+mode: "{{ girder_deployment_mode }}"
+api_root: "{{ girder_mount_path }}/api/v1"
+static_root: "{{ girder_mount_path }}/static"

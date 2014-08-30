@@ -1,0 +1,38 @@
+---
+
+  - name: Install dependencies from apt
+    apt: name={{ item }}
+    with_items:
+      - python2.7
+      - python2.7-dev
+      - build-essential
+      - python-software-properties
+      - libffi-dev
+
+  - name: Checkout girder from github
+    git: repo=https://github.com/girder/girder.git dest=/opt/girder
+
+  - name: Install python requirements
+    pip: requirements=/opt/girder/requirements.txt virtualenv=/opt/girder/env
+
+  - name: Install grunt globally
+    npm: name={{ item }} global=yes
+    with_items:
+      - grunt
+      - grunt-cli
+
+  - name: Install local npm requirements
+    npm: path=/opt/girder
+
+  - name: Create girder config
+    template: src=girder.local.cfg.j2 dest=/opt/girder/girder/conf/girder.local.cfg
+
+  - name: Run grunt init
+    command: grunt init chdir=/opt/girder
+
+  - name: Run grunt
+    command: grunt chdir=/opt/girder
+
+  - name: Configure supervisord to manage girder
+    template: src=girderd.conf.j2 dest=/etc/supervisor/conf.d/girderd.conf
+    notify: reload supervisor

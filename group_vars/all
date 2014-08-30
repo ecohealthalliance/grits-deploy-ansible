@@ -4,3 +4,8 @@ s3_mongo_import_directory: diagnosedHMData
 grits_user: grits
 grits_group: grits
 install_prefix: "/home/{{install_user}}"
+apache_url: "http://{{ ansible_hostname  }}"
+girder_mount_path: /gritsdb
+girder_socket_host: 127.0.0.1
+girder_socket_port: 9999
+girder_deployment_mode: production
