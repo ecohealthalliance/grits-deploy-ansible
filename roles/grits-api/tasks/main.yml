@@ -1,0 +1,41 @@
+---
+
+  - name: Install apt dependencies
+    apt: name={{ item }}
+    with_items:
+      - gfortran
+      - libopenblas-dev
+      - liblapack-dev
+      - lib32z1-dev
+      - zip
+      - unzip
+      - libxml2-dev
+      - libxslt1-dev
+    sudo: yes
+    sudo_user: root
+
+  - name: Copy grits-api
+    copy: src=grits-api/ dest={{ grits_api_prefix }}
+
+  - name: Configure grits-api
+    template: src=config.py.j2 dest={{ grits_api_prefix }}/config.py
+
+  - name: Install requirements
+    pip: requirements={{ grits_api_prefix }}/requirements.txt virtualenv={{ grits_api_prefix }}/env
+
+  - name: Download nltk data
+    command: "{{ grits_api_prefix }}/env/bin/python -c \"import nltk; nltk.download('{{ item }}')\""
+    with_items:
+      - maxent_ne_chunker
+      - maxent_treebank_pos_tagger
+      - words
+      - punkt
+
+  - name: Copy annie
+    copy: src=annie/ dest={{ annie_prefix }}
+
+  - name: Install annie
+    command: "{{ grits_api_prefix }}/env/bin/python setup.py install chdir={{ annie_prefix }}"
+
+  - name: Training
+    command: "{{ grits_api_prefix }}/env/bin/python train.py chdir={{ grits_api_prefix }}"
