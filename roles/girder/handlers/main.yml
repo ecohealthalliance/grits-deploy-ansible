@@ -1,0 +1,4 @@
+---
+
+  - name: restart girder
+    supervisorctl: name=girder state=restarted

@@ -33,6 +33,17 @@
   - name: Run grunt
     command: grunt chdir=/opt/girder
 
+  - name: Make log directory user writeable
+    file: path=/opt/girder/logs group={{ grits_group }} owner={{ grits_user }} state=directory
+
   - name: Configure supervisord to manage girder
     template: src=girderd.conf.j2 dest=/etc/supervisor/conf.d/girderd.conf
     notify: reload supervisor
+
+  - name: Install grits plugin
+    git: repo=https://github.com/ecohealthalliance/gritsSearch.git dest=/opt/girder/plugins/gritsSearch
+    notify: restart girder
+
+  - name: Compile python modules
+    command: /opt/girder/env/bin/python -m compileall /opt/girder
+    notify: restart girder

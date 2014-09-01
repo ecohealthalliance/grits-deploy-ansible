@@ -11,6 +11,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     v.cpus = 2
   end
 
+  config.vm.network "private_network", ip: "192.168.15.10"
+  config.vm.hostname = "grits.vm"
+
   config.vm.provision "ansible" do |ansible|
     ansible.playbook = "site.yml"
     ansible.vault_password_file = "~/.grits_vault_password"
