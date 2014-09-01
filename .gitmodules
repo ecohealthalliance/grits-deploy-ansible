@@ -1,3 +1,18 @@
 [submodule "roles/postfix"]
 	path = roles/postfix
 	url = https://github.com/geerlingguy/ansible-role-postfix.git
+[submodule "girder"]
+	path = girder
+	url = git@github.com:girder/girder.git
+[submodule "diagnostic-dashboard"]
+	path = diagnostic-dashboard
+	url = git@github.com:ecohealthalliance/diagnostic-dashboard.git
+[submodule "gritsSearch"]
+	path = gritsSearch
+	url = git@github.com:ecohealthalliance/gritsSearch.git
+[submodule "grits-api"]
+	path = grits-api
+	url = git@github.com:ecohealthalliance/grits-api.git
+[submodule "annie"]
+	path = annie
+	url = git@github.com:ecohealthalliance/annie.git
