@@ -4,6 +4,7 @@
   roles:
     - common
     - postfix
+    - apache
     - mongodb
     - node
     - s3restore

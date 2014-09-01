@@ -1,0 +1,19 @@
+<VirtualHost *:80>
+  ServerName {{ apache_url }}
+  RewriteEngine on
+  RewriteCond %{HTTPS} off
+  RewriteRule ^(.*) https://%{HTTP_HOST}%{REQUEST_URI}
+</VirtualHost>
+<VirtualHost *:443>
+  ServerName {{ apache_url }}
+  SSLEngine on
+  SSLCertificateFile /etc/apache2/ssl/apache.crt
+  SSLCertificateKeyFile /etc/apache2/ssl/apache.key
+  ProxyPreserveHost On
+  RewriteEngine on
+  RewriteRule ^{{ girder_mount_path }}$ {{ girder_mount_path }}/ [R]
+  ProxyPass {{ girder_mount_path }}/ http://localhost:{{ girder_socket_port }}/
+  ProxyPassReverse {{ girder_mount_path }}/ http://localhost:{{ girder_socket_port }}/
+  ProxyPass / http://localhost:{{ meteor_socket_port }}/
+  ProxyPassReverse / http://localhost:{{ meteor_socket_port }}/
+</VirtualHost>

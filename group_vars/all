@@ -9,3 +9,5 @@ girder_mount_path: /gritsdb
 girder_socket_host: 127.0.0.1
 girder_socket_port: 9999
 girder_deployment_mode: production
+
+meteor_socket_port: 3001

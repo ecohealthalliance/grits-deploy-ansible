@@ -22,7 +22,7 @@
       - grunt-cli
 
   - name: Install local npm requirements
-    npm: path=/opt/girder
+    npm: path=/opt/girder production=yes
 
   - name: Create girder config
     template: src=girder.local.cfg.j2 dest=/opt/girder/girder/conf/girder.local.cfg
