@@ -9,8 +9,11 @@
       - python-software-properties
       - libffi-dev
 
-  - name: Checkout girder from github
-    git: repo=https://github.com/girder/girder.git dest=/opt/girder
+  - name: Copy girder
+    copy: src=girder dest=/opt/
+
+  - name: Copy gritsSearch plugin
+    copy: src=gritsSearch dest=/opt/girder/plugins/
 
   - name: Install python requirements
     pip: requirements=/opt/girder/requirements.txt virtualenv=/opt/girder/env
@@ -39,10 +42,6 @@
   - name: Configure supervisord to manage girder
     template: src=girderd.conf.j2 dest=/etc/supervisor/conf.d/girderd.conf
     notify: reload supervisor
-
-  - name: Install grits plugin
-    git: repo=https://github.com/ecohealthalliance/gritsSearch.git dest=/opt/girder/plugins/gritsSearch
-    notify: restart girder
 
   - name: Compile python modules
     command: /opt/girder/env/bin/python -m compileall /opt/girder
