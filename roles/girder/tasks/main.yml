@@ -18,6 +18,9 @@
   - name: Install python requirements
     pip: requirements=/opt/girder/requirements.txt virtualenv=/opt/girder/env
 
+  - name: Install dateutil
+    pip: name=python-dateutil virtualenv=/opt/girder/env
+
   - name: Install grunt globally
     npm: name={{ item }} global=yes
     with_items:
