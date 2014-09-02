@@ -1,0 +1,4 @@
+---
+
+  - name: import geonames database
+    command: "{{ grits_api_prefix }}/env/bin/python mongo_import_geonames.py chdir={{ grits_api_prefix }}/diagnosis"
