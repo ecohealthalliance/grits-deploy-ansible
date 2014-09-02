@@ -1,7 +1,7 @@
 ---
 
 - name: Install common packages from apt
-  apt: pkg={{item}} state=installed
+  apt: pkg={{item}} state=installed update_cache=yes
   sudo: True
   with_items:
     - git
