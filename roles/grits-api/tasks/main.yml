@@ -55,7 +55,7 @@
     command: "{{ grits_api_prefix }}/env/bin/python setup.py install chdir={{ annie_prefix }}"
 
   # This command fails at the end
-  - name: training
+  - name: Training
     command: "{{ grits_api_prefix }}/env/bin/python train.py"
     args:
       chdir: "{{ grits_api_prefix }}"
@@ -63,3 +63,15 @@
     ignore_errors: yes
     tags:
       - train
+
+  - name: Install celery supervisord config
+    template: src=celeryd.conf.j2 dest=/etc/supervisor/conf.d/celeryd.conf
+    notify: reload supervisor
+    sudo: yes
+    sudo_user: root
+  
+  - name: Install flask supervisord config
+    template: src=flaskd.conf.j2 dest=/etc/supervisor/conf.d/flaskd.conf
+    notify: reload supervisor
+    sudo: yes
+    sudo_user: root

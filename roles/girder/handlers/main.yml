@@ -2,3 +2,5 @@
 
   - name: restart girder
     supervisorctl: name=girder state=restarted
+    sudo: yes
+    sudo_user: root

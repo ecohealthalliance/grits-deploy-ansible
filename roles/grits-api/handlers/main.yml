@@ -2,3 +2,18 @@
 
   - name: import geonames database
     command: "{{ grits_api_prefix }}/env/bin/python mongo_import_geonames.py chdir={{ grits_api_prefix }}/diagnosis"
+    sudo: yes
+    sudo_user: "{{ grits_user }}"
+  
+  - name: restart celery
+    supervisorctl: name={{ item }} state=restarted
+    with_items:
+      - celery_process
+      - celery_diagnose
+    sudo: yes
+    sudo_user: root
+  
+  - name: restart flask
+    supervisorctl: name=flask state=restarted
+    sudo: yes
+    sudo_user: root

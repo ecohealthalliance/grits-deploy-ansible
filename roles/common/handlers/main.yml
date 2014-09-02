@@ -3,3 +3,4 @@
 - name: reload supervisor
   command: supervisorctl update
   sudo: True
+  sudo_user: root
