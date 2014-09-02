@@ -16,6 +16,7 @@
 
   - name: Copy grits-api
     copy: src=grits-api/ dest={{ grits_api_prefix }}
+    register: grits_api_output
 
   - name: Configure grits-api
     template: src=config.py.j2 dest={{ grits_api_prefix }}/config.py
@@ -36,7 +37,7 @@
       - punkt
 
   - name: Download geonames data
-    get_url: url=http://download.geonames.org/export/dump/allCountries.zip dest={{ grits_api_prefix }}
+    get_url: url=http://download.geonames.org/export/dump/allCountries.zip dest={{ grits_api_prefix }}/allCountries.zip
 
   - name: Extract geonames zip
     unarchive:
@@ -48,9 +49,17 @@
 
   - name: Copy annie
     copy: src=annie/ dest={{ annie_prefix }}
+    register: annie_output
 
   - name: Install annie
     command: "{{ grits_api_prefix }}/env/bin/python setup.py install chdir={{ annie_prefix }}"
 
-  - name: Training
-    command: "{{ grits_api_prefix }}/env/bin/python train.py chdir={{ grits_api_prefix }}"
+  # This command fails at the end
+  - name: training
+    command: "{{ grits_api_prefix }}/env/bin/python train.py"
+    args:
+      chdir: "{{ grits_api_prefix }}"
+      creates: "{{ grits_api_prefix }}/keyword_sets.p"
+    ignore_errors: yes
+    tags:
+      - train
