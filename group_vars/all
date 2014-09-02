@@ -10,6 +10,7 @@ girder_deployment_mode: production
 
 grits_api_prefix: "/home/{{ grits_user }}/grits-api"
 annie_prefix: "/home/{{ grits_user }}/annie"
+diagnostic_dashboard_prefix: "/home/{{ grits_user }}/diagnostic-dashboard"
 
 mongo_url: localhost
 celery_broker: "mongodb://localhost:27017/tasks"
@@ -17,9 +18,16 @@ celery_broker: "mongodb://localhost:27017/tasks"
 meteor_port: 3001
 meteor_db_name: diagnosis
 meteor_mongo: "mongodb://localhost:27107/{{ meteor_db_name }}"
+mail_url: "smtp://localhost"
 
 run_cron_jobs: True
 diagnose_on_launch: True
 
 s3_mongo_import_directory: diagnosedHMData
 s3_dump_directory: devdump
+
+# where to put cron scripts
+cron_prefix: /home/{{ grits_user }}/cron
+
+# where to put cron logs
+cron_logs: /home/{{ grits_user }}/cron/logs

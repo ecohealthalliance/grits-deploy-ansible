@@ -50,5 +50,38 @@
     command: /opt/girder/env/bin/python -m compileall /opt/girder
     notify: restart girder
 
+  - name: Copy healthmap import python script
+    template:
+      src: healthMapGirder.py
+      dest: "{{ cron_prefix }}/healthMapGirder.py"
+      group: "{{ grits_group }}"
+      owner: "{{ grits_user }}"
+
+  - name: Copy cron scripts
+    template:
+      src: "{{ item }}.j2"
+      dest: "{{ cron_prefix }}/{{ item }}"
+      group: "{{ grits_group }}"
+      owner: "{{ grits_user }}"
+      mode: 0755
+    with_items:
+      - dump_girder_to_s3
+      - hm_import
+
   - name: Install healthmap update cron job
-    when: "{{ run_cron_jobs }}"
+    cron:
+      name: "Update healthmap data"
+      user: "{{ grits_user }}"
+      job: "{{ cron_prefix }}/hm_import"
+      hour: 1
+      minute: 0
+    when: run_cron_jobs
+
+  - name: Install girder dump cron job
+    cron:
+      name: "Dump girder data"
+      user: "{{ grits_user }}"
+      job: "{{ cron_prefix }}/dump_girder_to_s3"
+      hour: 5
+      minute: 0
+    when: run_cron_jobs

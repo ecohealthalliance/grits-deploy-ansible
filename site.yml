@@ -2,14 +2,15 @@
 
 - hosts: all
   roles:
-    - common
-    - postfix
-    - apache
-    - mongodb
-    - node
-    - s3restore
-    - girder
-    - { role: grits-api, sudo_user: "{{ grits_user }}" }
+#    - common
+#    - postfix
+#    - apache
+#    - mongodb
+#    - node
+#    - s3restore
+#    - girder
+#    - { role: grits-api, sudo_user: "{{ grits_user }}" }
+    - { role: diagnostic-dashboard, sudo_user: "{{ grits_user }}" }
   vars_files:
     - secure.yml
   sudo: yes

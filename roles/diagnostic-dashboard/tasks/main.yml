@@ -1,0 +1,26 @@
+---
+
+  - name: Install meteor
+    shell: curl https://install.meteor.com | /bin/sh chdir=/tmp creates=/usr/local/bin/meteor
+    sudo: yes
+    sudo_user: root
+
+  - name: Install meteor npm modules
+    npm: name={{ item }} global=yes state=present
+    sudo: yes
+    sudo_user: root
+    with_items:
+      - meteorite
+      - forever
+
+  - name: Copy diagnostic dashboard source
+    copy: src=diagnostic-dashboard/ dest={{ diagnostic_dashboard_prefix }}
+
+  - name: Create config
+    template: src=config.j2 dest={{ diagnostic_dashboard_prefix }}/config mode=0755
+
+  - name: Run deploy script
+    command: /bin/bash ./deploy.sh
+    args:
+      chdir: "{{ diagnostic_dashboard_prefix }}"
+      creates: "{{ diagnostic_dashboard_prefix }}/bundle.tgz"

@@ -16,7 +16,6 @@
 
   - name: Copy grits-api
     copy: src=grits-api/ dest={{ grits_api_prefix }}
-    register: grits_api_output
 
   - name: Configure grits-api
     template: src=config.py.j2 dest={{ grits_api_prefix }}/config.py
@@ -49,7 +48,6 @@
 
   - name: Copy annie
     copy: src=annie/ dest={{ annie_prefix }}
-    register: annie_output
 
   - name: Install annie
     command: "{{ grits_api_prefix }}/env/bin/python setup.py install chdir={{ annie_prefix }}"
@@ -69,9 +67,26 @@
     notify: reload supervisor
     sudo: yes
     sudo_user: root
-  
+
   - name: Install flask supervisord config
     template: src=flaskd.conf.j2 dest=/etc/supervisor/conf.d/flaskd.conf
     notify: reload supervisor
     sudo: yes
     sudo_user: root
+
+  - name: Copy cron script
+    template:
+      src: diagnose_girder_HM_articles.j2
+      dest: "{{ cron_prefix }}/diagnose_girder_HM_articles"
+      group: "{{ grits_group }}"
+      owner: "{{ grits_user }}"
+      mode: 0755
+
+  - name: Install healthmap diagnosis cron job
+    cron:
+      name: "Diagnose healthmap articles"
+      user: "{{ grits_user }}"
+      job: "{{ cron_prefix }}/diagnose_girder_HM_articles"
+      hour: 3
+      minute: 0
+    when: run_cron_jobs

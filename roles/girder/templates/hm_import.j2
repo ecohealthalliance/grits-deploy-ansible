@@ -1,0 +1,5 @@
+#!/bin/bash
+
+source $HOME/grits_config && \
+  PYTHONPATH=/opt/girder:$PYTHONPATH \
+  /opt/girder/env/bin/python "{{ cron_prefix }}/healthMapGirder.py" --twoday > "{{ cron_logs }}/hm_import_log" 2> "{{ cron_logs }}/hm_import_err"

@@ -25,3 +25,9 @@
 
 - name: Create grits environment configuration
   template: src=config.j2 dest=/home/{{ grits_user }}/grits_config group={{ grits_group }} owner={{ grits_user }}
+
+- name: Create cron script directory
+  file: path={{ cron_prefix }} group={{ grits_group }} owner={{ grits_user }} state=directory
+
+- name: Create cron log directory
+  file: path={{ cron_logs }} group={{ grits_group }} owner={{ grits_user }} state=directory
