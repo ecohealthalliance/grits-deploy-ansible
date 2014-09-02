@@ -1,6 +1,5 @@
 ---
 
-s3_mongo_import_directory: diagnosedHMData
 grits_user: grits
 grits_group: grits
 apache_url: "https://{{ ansible_eth1.ipv4.address  }}"
@@ -15,4 +14,12 @@ annie_prefix: "/home/{{ grits_user }}/annie"
 mongo_url: localhost
 celery_broker: "mongodb://localhost:27017/tasks"
 
-meteor_socket_port: 3001
+meteor_port: 3001
+meteor_db_name: diagnosis
+meteor_mongo: "mongodb://localhost:27107/{{ meteor_db_name }}"
+
+run_cron_jobs: True
+diagnose_on_launch: True
+
+s3_mongo_import_directory: diagnosedHMData
+s3_dump_directory: devdump

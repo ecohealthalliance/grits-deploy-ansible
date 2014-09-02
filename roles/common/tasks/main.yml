@@ -22,3 +22,6 @@
 
 - name: Create grits user
   user: name={{ grits_user }} group={{ grits_group }} shell=/bin/bash
+
+- name: Create grits environment configuration
+  template: src=config.j2 dest=/home/{{ grits_user }}/grits_config group={{ grits_group }} owner={{ grits_user }}

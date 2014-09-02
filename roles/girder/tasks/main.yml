@@ -49,3 +49,6 @@
   - name: Compile python modules
     command: /opt/girder/env/bin/python -m compileall /opt/girder
     notify: restart girder
+
+  - name: Install healthmap update cron job
+    when: "{{ run_cron_jobs }}"

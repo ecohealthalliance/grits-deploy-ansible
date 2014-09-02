@@ -14,6 +14,6 @@
   RewriteRule ^{{ girder_mount_path }}$ {{ girder_mount_path }}/ [R]
   ProxyPass {{ girder_mount_path }}/ http://localhost:{{ girder_socket_port }}/
   ProxyPassReverse {{ girder_mount_path }}/ http://localhost:{{ girder_socket_port }}/
-  ProxyPass / http://localhost:{{ meteor_socket_port }}/
-  ProxyPassReverse / http://localhost:{{ meteor_socket_port }}/
+  ProxyPass / http://localhost:{{ meteor_port }}/
+  ProxyPassReverse / http://localhost:{{ meteor_port }}/
 </VirtualHost>
