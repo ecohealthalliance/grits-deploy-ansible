@@ -28,7 +28,10 @@
     pip: name=nose virtualenv={{ grits_api_prefix }}/env
 
   - name: Download nltk data
-    command: "{{ grits_api_prefix }}/env/bin/python -c \"import nltk; nltk.download('{{ item }}')\""
+    shell: "{{ grits_api_prefix }}/env/bin/python -c \"import nltk; nltk.download('{{ item }}')\" && echo done > .nltk_downloaded"
+    args:
+      chdir: /home/{{ grits_user }}
+      creates: /home/{{ grits_user }}/.nltk_downloaded
     with_items:
       - maxent_ne_chunker
       - maxent_treebank_pos_tagger
@@ -46,23 +49,25 @@
       creates: "{{ grits_api_prefix }}/diagnosis/allCountries.txt"
   
   - name: Import geonames database
-    shell: "{{ grits_api_prefix }}/env/bin/python mongo_import_geonames.py && echo done > geonames.imported"
+    shell: "{{ grits_api_prefix }}/env/bin/python mongo_import_geonames.py && echo done > .geonames.imported"
     args:
       chdir: "{{ grits_api_prefix }}/diagnosis"
-      creates: "{{ grits_api_prefix }}/diagnosis/geonames.imported"
+      creates: "{{ grits_api_prefix }}/diagnosis/.geonames.imported"
     sudo: yes
     sudo_user: "{{ grits_user }}"
   
-
   - name: Copy annie
     copy: src=annie/ dest={{ annie_prefix }}
 
   - name: Install annie
-    command: "{{ grits_api_prefix }}/env/bin/python setup.py install chdir={{ annie_prefix }}"
+    shell: "{{ grits_api_prefix }}/env/bin/python setup.py install && echo done > .annie_installed"
+    args:
+      chdir: "{{ annie_prefix }}"
+      creates: "{{ annie_prefix }}/.annie_installed"
 
   # This command fails at the end
   - name: Training
-    command: "{{ grits_api_prefix }}/env/bin/python train.py"
+    shell: "{{ grits_api_prefix }}/env/bin/python train.py"
     args:
       chdir: "{{ grits_api_prefix }}"
       creates: "{{ grits_api_prefix }}/keyword_sets.p"
