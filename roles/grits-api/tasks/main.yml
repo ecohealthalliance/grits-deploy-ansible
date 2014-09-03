@@ -44,7 +44,15 @@
       dest: "{{ grits_api_prefix }}/diagnosis"
       copy: no
       creates: "{{ grits_api_prefix }}/diagnosis/allCountries.txt"
-    notify: import geonames database
+  
+  - name: Import geonames database
+    shell: "{{ grits_api_prefix }}/env/bin/python mongo_import_geonames.py && echo done > geonames.imported"
+    args:
+      chdir: "{{ grits_api_prefix }}/diagnosis"
+      creates: "{{ grits_api_prefix }}/diagnosis/geonames.imported"
+    sudo: yes
+    sudo_user: "{{ grits_user }}"
+  
 
   - name: Copy annie
     copy: src=annie/ dest={{ annie_prefix }}
