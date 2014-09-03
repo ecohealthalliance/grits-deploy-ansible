@@ -34,21 +34,31 @@
     template: src=girder.local.cfg.j2 dest=/opt/girder/girder/conf/girder.local.cfg
 
   - name: Run grunt init
-    command: grunt init chdir=/opt/girder
+    shell: grunt init && echo done > /opt/girder/.grunt_init_done
+    args:
+      chdir: /opt/girder
+      creates: /opt/girder/.grunt_init
 
   - name: Run grunt
-    command: grunt chdir=/opt/girder
+    shell: grunt && echo done > /opt/girder/.grunt_done
+    args:
+      chdir: /opt/girder
+      creates: /opt/girder/.grunt_done
 
   - name: Make log directory user writeable
     file: path=/opt/girder/logs group={{ grits_group }} owner={{ grits_user }} state=directory
 
+  - name: Compile python modules
+    shell: /opt/girder/env/bin/python -m compileall /opt/girder && echo done > /opt/girder/.python_compiled
+    args:
+      creates: /opt/girder/.python_compiled
+
   - name: Configure supervisord to manage girder
     template: src=girderd.conf.j2 dest=/etc/supervisor/conf.d/girderd.conf
-    notify: reload supervisor
 
-  - name: Compile python modules
-    command: /opt/girder/env/bin/python -m compileall /opt/girder
-    notify: restart girder
+  # maybe a better way to do this, but we need supervisor to be reloaded now,
+  # handlers run at the end
+  - include: ../common/handlers/main.yml
 
   - name: Copy healthmap import python script
     template:
