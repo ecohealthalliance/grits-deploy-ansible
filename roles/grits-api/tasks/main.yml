@@ -28,10 +28,10 @@
     pip: name=nose virtualenv={{ grits_api_prefix }}/env
 
   - name: Download nltk data
-    shell: "{{ grits_api_prefix }}/env/bin/python -c \"import nltk; nltk.download('{{ item }}')\" && echo done > .nltk_downloaded"
+    shell: "{{ grits_api_prefix }}/env/bin/python -c \"import nltk; nltk.download('{{ item }}')\" && echo done > .nltk_{{ item }}_downloaded"
     args:
       chdir: /home/{{ grits_user }}
-      creates: /home/{{ grits_user }}/.nltk_downloaded
+      creates: /home/{{ grits_user }}/.nltk_{{ item }}_downloaded
     with_items:
       - maxent_ne_chunker
       - maxent_treebank_pos_tagger
