@@ -58,7 +58,7 @@
 
   # maybe a better way to do this, but we need supervisor to be reloaded now,
   # handlers run at the end
-  - include: ../common/handlers/main.yml
+  - include: ../../common/handlers/main.yml
 
   - name: Copy healthmap import python script
     template:
