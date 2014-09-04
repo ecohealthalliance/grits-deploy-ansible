@@ -16,3 +16,6 @@
 [submodule "annie"]
 	path = annie
 	url = git@github.com:ecohealthalliance/annie.git
+[submodule "jvm-nlp"]
+	path = jvm-nlp
+	url = git@github.com:ecohealthalliance/jvm-nlp.git
