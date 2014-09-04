@@ -104,6 +104,7 @@
       name: "Diagnose healthmap articles"
       user: "{{ grits_user }}"
       job: "{{ cron_prefix }}/diagnose_girder_HM_articles"
+      day: 26
       hour: 3
       minute: 0
     when: run_cron_jobs
