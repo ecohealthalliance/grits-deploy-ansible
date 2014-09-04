@@ -24,7 +24,7 @@
     copy: src=jvm-nlp/ dest={{ jvm_nlp_prefix }}
 
   - name: Run sbt package
-    shell: "{{ jvm_nlp_prefix }}/sbt package && echo done > .sbt_package_done"
+    shell: "/bin/bash {{ jvm_nlp_prefix }}/sbt package && echo done > .sbt_package_done"
     args:
       chdir: "{{ jvm_nlp_prefix }}"
       creates: "{{ jvm_nlp_prefix }}/.sbt_package_done"
