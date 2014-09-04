@@ -10,6 +10,7 @@
     - s3restore
     - girder
     - { role: grits-api, sudo_user: "{{ grits_user }}" }
+    - { role: jvm-nlp, sudo_user: "{{ grits_user }}" }
     - { role: diagnostic-dashboard, sudo_user: "{{ grits_user }}" }
   vars_files:
     - secure.yml

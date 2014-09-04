@@ -26,7 +26,7 @@
   - name: Run sbt package
     shell: "{{ jvm_nlp_prefix }}/sbt package && echo done > .sbt_package_done"
     args:
-      chdir: "{{ jvm_nlp_prefix }}
+      chdir: "{{ jvm_nlp_prefix }}"
       creates: "{{ jvm_nlp_prefix }}/.sbt_package_done"
 
   - name: Delete webapps/ROOT*
