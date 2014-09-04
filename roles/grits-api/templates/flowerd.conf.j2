@@ -1,0 +1,7 @@
+[program:flower]
+command={{ grits_api_prefix }}/env/bin/celery flower -A tasks --port={{ flower_port }} --basic_auth={{ flower_user }}:{{ flower_password }}
+directory={{ grits_api_prefix }}
+user={{ grits_user }}
+; Setting a lower priority than the 999 default
+; to make sure this starts before celery
+priority=900

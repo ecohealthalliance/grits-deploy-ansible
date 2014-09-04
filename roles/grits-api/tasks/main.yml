@@ -75,17 +75,15 @@
     tags:
       - train
 
-  - name: Install celery supervisord config
-    template: src=celeryd.conf.j2 dest=/etc/supervisor/conf.d/celeryd.conf
+  - name: Install supervisord configs
+    template: src={{ item }}.conf.j2 dest=/etc/supervisor/conf.d/{{ item }}.conf
     notify: reload supervisor
     sudo: yes
     sudo_user: root
-
-  - name: Install flower supervisord config
-    template: src=flowerd.conf.j2 dest=/etc/supervisor/conf.d/flowerd.conf
-    notify: reload supervisor
-    sudo: yes
-    sudo_user: root
+    with_items:
+      - celeryd
+      - flowerd
+      - gritsapid
 
   - name: Copy cron script
     template:
