@@ -38,16 +38,6 @@
       - words
       - punkt
 
-  - name: Download geonames data
-    get_url: url=http://download.geonames.org/export/dump/allCountries.zip dest={{ grits_api_prefix }}/allCountries.zip
-
-  - name: Extract geonames zip
-    unarchive:
-      src: "{{ grits_api_prefix }}/allCountries.zip"
-      dest: "{{ grits_api_prefix }}/diagnosis"
-      copy: no
-      creates: "{{ grits_api_prefix }}/diagnosis/allCountries.txt"
-
   - name: Copy annie
     copy: src=annie/ dest={{ annie_prefix }}
 
@@ -56,6 +46,16 @@
     args:
       chdir: "{{ annie_prefix }}"
       creates: "{{ annie_prefix }}/.annie_installed"
+
+  - name: Download geonames data
+    get_url: url=http://download.geonames.org/export/dump/allCountries.zip dest={{ annie_prefix }}/allCountries.zip
+
+  - name: Extract geonames zip
+    unarchive:
+      src: "{{ annie_prefix }}/allCountries.zip"
+      dest: "{{ annie_prefix }}/diagnosis"
+      copy: no
+      creates: "{{ annie_prefix }}/diagnosis/allCountries.txt"
 
   - name: Import geonames database
     shell: "{{ grits_api_prefix }}/env/bin/python mongo_import_geonames.py --mongo_url {{ mongo_url }} && echo done > .geonames.imported"
