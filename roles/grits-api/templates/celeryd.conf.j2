@@ -6,7 +6,7 @@
 ; The other workers will also handle priority diagnoses if they are not
 ; performing a batch job
 [program:celery_priority]
-command={{ grits_api_prefix }}/env/bin/celery worker -A tasks -Q priority --loglevel=INFO
+command={{ grits_api_prefix }}/env/bin/celery worker -A tasks -Q priority --loglevel=INFO --concurrency={{ celery_priority_workers }}
 directory={{ grits_api_prefix }}
 user={{ grits_user }}
 autostart=true
@@ -26,7 +26,7 @@ killasgroup=true
 ; I threads to scrape and preprocess because most the time is spent making http
 ; so a single process provides a sufficinet amount of cpu time.
 [program:celery_process]
-command={{ grits_api_prefix }}/env/bin/celery worker -A tasks -Q process,priority -P threads --concurrency 10 --loglevel=INFO
+command={{ grits_api_prefix }}/env/bin/celery worker -A tasks -Q process -P threads --concurrency 10 --loglevel=INFO
 directory={{ grits_api_prefix }}
 user={{ grits_user }}
 autostart=true
@@ -36,7 +36,7 @@ stopwaitsecs=600
 killasgroup=true
 
 [program:celery_diagnose]
-command={{ grits_api_prefix }}/env/bin/celery worker -A tasks -Q diagnose,priority --loglevel=INFO
+command={{ grits_api_prefix }}/env/bin/celery worker -A tasks -Q diagnose,priority --loglevel=INFO --concurrency={{ celery_batch_workers }}
 directory={{ grits_api_prefix }}
 user={{ grits_user }}
 autostart=true
@@ -44,7 +44,3 @@ autorestart=true
 startsecs=10
 stopwaitsecs=600
 killasgroup=true
-
-; If you enable this set the password
-; [program:flower]
-; command=flower --port=5555 --broker=mongodb://localhost:27017/tasks --basic_auth=user:password

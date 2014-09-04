@@ -81,8 +81,8 @@
     sudo: yes
     sudo_user: root
 
-  - name: Install flask supervisord config
-    template: src=flaskd.conf.j2 dest=/etc/supervisor/conf.d/flaskd.conf
+  - name: Install flower supervisord config
+    template: src=flowerd.conf.j2 dest=/etc/supervisor/conf.d/flowerd.conf
     notify: reload supervisor
     sudo: yes
     sudo_user: root
