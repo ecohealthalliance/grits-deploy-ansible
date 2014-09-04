@@ -47,7 +47,7 @@
       dest: "{{ grits_api_prefix }}/diagnosis"
       copy: no
       creates: "{{ grits_api_prefix }}/diagnosis/allCountries.txt"
-  
+
   - name: Import geonames database
     shell: "{{ grits_api_prefix }}/env/bin/python mongo_import_geonames.py && echo done > .geonames.imported"
     args:
@@ -55,7 +55,7 @@
       creates: "{{ grits_api_prefix }}/diagnosis/.geonames.imported"
     sudo: yes
     sudo_user: "{{ grits_user }}"
-  
+
   - name: Copy annie
     copy: src=annie/ dest={{ annie_prefix }}
 
@@ -82,8 +82,14 @@
     sudo_user: root
     with_items:
       - celeryd
-      - flowerd
       - gritsapid
+
+  - name: Install flower supervisord config
+    template: src=flowerd.conf.j2 dest=/etc/supervisor/conf.d/flowerd.conf
+    notify: reload supervisor
+    sudo: yes
+    sudo_user: root
+    when: flower_password != ""
 
   - name: Copy cron script
     template:
