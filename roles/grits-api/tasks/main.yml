@@ -48,14 +48,6 @@
       copy: no
       creates: "{{ grits_api_prefix }}/diagnosis/allCountries.txt"
 
-  - name: Import geonames database
-    shell: "{{ grits_api_prefix }}/env/bin/python mongo_import_geonames.py && echo done > .geonames.imported"
-    args:
-      chdir: "{{ grits_api_prefix }}/diagnosis"
-      creates: "{{ grits_api_prefix }}/diagnosis/.geonames.imported"
-    sudo: yes
-    sudo_user: "{{ grits_user }}"
-
   - name: Copy annie
     copy: src=annie/ dest={{ annie_prefix }}
 
@@ -64,6 +56,15 @@
     args:
       chdir: "{{ annie_prefix }}"
       creates: "{{ annie_prefix }}/.annie_installed"
+
+  - name: Import geonames database
+    shell: "{{ grits_api_prefix }}/env/bin/python mongo_import_geonames.py --mongo_url {{ mongo_url }} && echo done > .geonames.imported"
+    args:
+      chdir: "{{ annie_prefix }}"
+      creates: "{{ annie_prefix }}/.geonames.imported"
+    sudo: yes
+    sudo_user: "{{ grits_user }}"
+
 
   # This command fails at the end
   - name: Training
