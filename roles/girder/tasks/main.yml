@@ -37,7 +37,7 @@
     shell: grunt init && echo done > /opt/girder/.grunt_init_done
     args:
       chdir: /opt/girder
-      creates: /opt/girder/.grunt_init
+      creates: /opt/girder/.grunt_init_done
 
   - name: Run grunt
     shell: grunt && echo done > /opt/girder/.grunt_done
