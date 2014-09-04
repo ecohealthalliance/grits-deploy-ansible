@@ -24,3 +24,6 @@
     args:
       chdir: "{{ diagnostic_dashboard_prefix }}"
       creates: "{{ diagnostic_dashboard_prefix }}/bundle.tgz"
+
+  - name: Install supervisord config
+    template: src=dashboardd.conf.j2 dest=/etc/supervisor/conf.d/dashboardd.conf
