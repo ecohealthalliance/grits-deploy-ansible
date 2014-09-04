@@ -53,9 +53,9 @@
   - name: Extract geonames zip
     unarchive:
       src: "{{ annie_prefix }}/allCountries.zip"
-      dest: "{{ annie_prefix }}/diagnosis"
+      dest: "{{ annie_prefix }}"
       copy: no
-      creates: "{{ annie_prefix }}/diagnosis/allCountries.txt"
+      creates: "{{ annie_prefix }}/allCountries.txt"
 
   - name: Import geonames database
     shell: "{{ grits_api_prefix }}/env/bin/python mongo_import_geonames.py --mongo_url {{ mongo_url }} && echo done > .geonames.imported"
