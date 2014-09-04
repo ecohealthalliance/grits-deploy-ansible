@@ -1,0 +1,43 @@
+---
+
+  - name: Install apt dependencies
+    apt: pkg={{ item }} state=installed
+    sudo: yes
+    sudo_user: root
+    with_items:
+      - default-jre
+      - default-jdk
+      - tomcat7
+
+  - name: Configure tomcat
+    template: src=tomcat7.j2 dest=/etc/default/tomcat7
+    sudo: yes
+    sudo_user: root
+    notify: restart tomcat
+
+  - name: Enable tomcat service
+    service: name=tomcat7 state=started enabled=yes
+    sudo: yes
+    sudo_user: root
+
+  - name: Copy jvm-nlp
+    copy: src=jvm-nlp/ dest={{ jvm_nlp_prefix }}
+
+  - name: Run sbt package
+    shell: "{{ jvm_nlp_prefix }}/sbt package && echo done > .sbt_package_done"
+    args:
+      chdir: "{{ jvm_nlp_prefix }}
+      creates: "{{ jvm_nlp_prefix }}/.sbt_package_done"
+
+  - name: Delete webapps/ROOT*
+    command: "rm -rf /var/lib/tomcat7/webapps/ROOT*"
+    sudo: yes
+    sudo_user: root
+
+  - name: Install jvm-nlp to webapps
+    command: "cp {{ jvm_nlp_prefix }}/target/scala-2.11/*.war /var/lib/tomcat7/webapps/ROOT.war"
+    sudo: yes
+    sudo_user: root
+
+  # force restart tomcat here, but maybe okay to notify the handler
+  - include: ../handlers/main.yml
