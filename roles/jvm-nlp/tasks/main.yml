@@ -30,12 +30,12 @@
       creates: "{{ jvm_nlp_prefix }}/.sbt_package_done"
 
   - name: Delete webapps/ROOT*
-    command: "rm -rf /var/lib/tomcat7/webapps/ROOT*"
+    shell: "rm -rf /var/lib/tomcat7/webapps/ROOT*"
     sudo: yes
     sudo_user: root
 
   - name: Install jvm-nlp to webapps
-    command: "cp {{ jvm_nlp_prefix }}/target/scala-2.11/*.war /var/lib/tomcat7/webapps/ROOT.war"
+    shell: "cp {{ jvm_nlp_prefix }}/target/scala-2.11/*.war /var/lib/tomcat7/webapps/ROOT.war"
     sudo: yes
     sudo_user: root
 
