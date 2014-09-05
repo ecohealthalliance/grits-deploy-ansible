@@ -20,6 +20,11 @@
   - name: Create config
     template: src=config.j2 dest={{ diagnostic_dashboard_prefix }}/config mode=0755
 
+  - name: Remove node_modules directory
+    file: path={{ diagnostic_dashboard_prefix }}/node_modules state=absent
+    sudo: yes
+    sudo_user: root
+
   - name: Remove bundle directory
     file: path={{ diagnostic_dashboard_prefix }}/bundle state=absent
     when: dashboard_copy.changed
