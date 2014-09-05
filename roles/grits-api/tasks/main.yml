@@ -65,14 +65,11 @@
     sudo: yes
     sudo_user: "{{ grits_user }}"
 
-
-  # This command fails at the end
   - name: Training
     shell: "{{ grits_api_prefix }}/env/bin/python train.py"
     args:
       chdir: "{{ grits_api_prefix }}"
-      creates: "{{ grits_api_prefix }}/keyword_sets.p"
-    ignore_errors: yes
+      creates: "{{ grits_api_prefix }}/keyword_array.p"
     tags:
       - train
 

@@ -12,6 +12,9 @@ Included in this repository is everything you need to deploy the entire
 grits application into a virtual machine using vagrant.  All you need
 is to install [vagrant](https://www.vagrantup.com/),
 [VirtualBox](https://www.virtualbox.org/), and [Ansible](http://www.ansible.com/).
+The ansible apt-get package may be too out of date to run this playbook,
+so the suggested method for installation is to install pip and run:
+`sudo pip install paramiko PyYAML jinja2 httplib2 ansible`
 Sensitive passwords and api keys are encrypted with [ansible-vault](http://docs.ansible.com/playbooks_vault.html).
 You will need to obtain the vault password and put it in a file called
 `~/.grits_vault_password` to run the vagrant installation.
@@ -37,7 +40,15 @@ VM.  Cron logs go in `/home/grits/cron/logs` by default and supervisor logs are 
 
 ### Deploying to an AWS instance
 
-TODO
+Create a [host inventory file](http://docs.ansible.com/intro_inventory.html)
+in `/etc/ansible/hosts` with the instance's ip address.
+Next run the playbook using a command like this:
+
+```
+ansible-playbook site.yml --vault-password-file ~/.grits_vault_password --private-key ~/.keys/grits-dev.pem
+```
+
+Ansible can also provision new instances, however we haven't used this feature yet.
 
 Helpful links:
  * http://docs.ansible.com/guide_aws.html

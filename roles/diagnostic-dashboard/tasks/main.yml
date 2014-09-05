@@ -49,9 +49,12 @@
     sudo: yes
     sudo_user: root
     notify: reload supervisor
-
+    with_items:
+      - dashboard
+      
   - name: Autocomplete collection
     command: mongo .scripts/autocompleteCollections.js
     args:
       chdir: "{{ diagnostic_dashboard_prefix }}"
     when: dashboard_copy.changed
+

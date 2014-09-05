@@ -2,7 +2,7 @@
 
 grits_user: grits
 grits_group: grits
-apache_url: "https://{{ ansible_eth1.ipv4.address  }}"
+apache_url: "https://{% if ansible_eth1 is defined %}{{ ansible_eth1.ipv4.address }}{% else %}{{ ansible_eth0.ipv4.address }}{% endif %}"
 girder_mount_path: /gritsdb
 girder_socket_host: 127.0.0.1
 girder_socket_port: 9999
@@ -18,7 +18,7 @@ celery_broker: "mongodb://localhost:27017/tasks"
 
 meteor_port: 3001
 meteor_db_name: diagnosis
-meteor_mongo: "mongodb://localhost:27107/{{ meteor_db_name }}"
+meteor_mongo: "mongodb://localhost:27017/{{ meteor_db_name }}"
 mail_url: "smtp://localhost"
 
 run_cron_jobs: True
