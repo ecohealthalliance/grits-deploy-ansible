@@ -15,15 +15,43 @@
 
   - name: Copy diagnostic dashboard source
     copy: src=diagnostic-dashboard/ dest={{ diagnostic_dashboard_prefix }}
+    register: dashboard_copy
 
   - name: Create config
     template: src=config.j2 dest={{ diagnostic_dashboard_prefix }}/config mode=0755
 
-  - name: Run deploy script
-    command: /bin/bash ./deploy.sh
-    args:
-      chdir: "{{ diagnostic_dashboard_prefix }}"
-      creates: "{{ diagnostic_dashboard_prefix }}/bundle.tgz"
+  - name: Remove bundle directory
+    file: path={{ diagnostic_dashboard_prefix }}/bundle state=absent
+    when: dashboard_copy.changed
+
+  - name: mrt update
+    command: mrt update chdir={{ diagnostic_dashboard_prefix }}
+    when: dashboard_copy.changed
+
+  - name: mrt bundle
+    command: mrt bundle bundle.tgz chdir={{ diagnostic_dashboard_prefix }}
+    when: dashboard_copy.changed
+
+  - name: Unarchive bundle
+    unarchive: src={{ diagnostic_dashboard_prefix }}/bundle.tgz dest={{ diagnostic_dashboard_prefix }} copy=no
+    when: dashboard_copy.changed
+
+  - name: Remove fibers from bundle
+    file: path={{ diagnostic_dashboard_prefix }}/bundle/programs/server/node_modules/fibers state=absent
+    when: dashboard_copy.changed
+
+  - name: Install fibers by npm into bundle
+    npm: name=fibers production=yes path={{ diagnostic_dashboard_prefix }}/bundle/programs/server
+    when: dashboard_copy.changed
 
   - name: Install supervisord config
     template: src=dashboardd.conf.j2 dest=/etc/supervisor/conf.d/dashboardd.conf
+    sudo: yes
+    sudo_user: root
+    notify: reload supervisor
+
+  - name: Autocomplete collection
+    command: mongo .scripts/autocompleteCollections.js
+    args:
+      chdir: "{{ diagnostic_dashboard_prefix }}"
+    when: dashboard_copy.changed
