@@ -14,6 +14,18 @@
   RewriteRule ^{{ girder_mount_path }}$ {{ girder_mount_path }}/ [R]
   ProxyPass {{ girder_mount_path }}/ http://localhost:{{ girder_socket_port }}/
   ProxyPassReverse {{ girder_mount_path }}/ http://localhost:{{ girder_socket_port }}/
+  ProxyPass /api/v1/public_diagnose http://localhost:5000/public_diagnose
+  ProxyPassReverse /api/v1/public_diagnose http://localhost:5000/public_diagnose
+  ProxyPass /api/v1 http://localhost:444/api/v1
+  ProxyPassReverse /api/v1 http://localhost:444/api/v1
   ProxyPass / http://localhost:{{ meteor_port }}/
   ProxyPassReverse / http://localhost:{{ meteor_port }}/
+</VirtualHost>
+<VirtualHost *:444>
+  ServerName {{ apache_url }}
+  # Configures static file server for API docs
+  DocumentRoot {{ grits_api_prefix }}/static
+  <Directory {{ grits_api_prefix }}/static>
+      Require all granted
+  </Directory>
 </VirtualHost>
