@@ -16,6 +16,7 @@
 
   - name: Copy grits-api
     copy: src=grits-api/ dest={{ grits_api_prefix }}
+    notify: restart supervisor
 
   - name: Configure grits-api
     template: src=config.py.j2 dest={{ grits_api_prefix }}/config.py
@@ -37,9 +38,13 @@
       - maxent_treebank_pos_tagger
       - words
       - punkt
+    sudo: yes
+    sudo_user: "{{ grits_user }}"
+    notify: restart supervisor
 
   - name: Copy annie
     copy: src=annie/ dest={{ annie_prefix }}
+    notify: restart supervisor
 
   - name: Install annie
     shell: "{{ grits_api_prefix }}/env/bin/python setup.py install && echo done > .annie_installed"
@@ -72,6 +77,7 @@
       creates: "{{ grits_api_prefix }}/keyword_array.p"
     tags:
       - train
+    notify: restart supervisor
 
   - name: Install supervisord configs
     template: src={{ item }}.conf.j2 dest=/etc/supervisor/conf.d/{{ item }}.conf

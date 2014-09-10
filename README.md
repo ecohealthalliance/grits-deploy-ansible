@@ -48,6 +48,8 @@ Next run the playbook using a command like this:
 ansible-playbook site.yml --vault-password-file ~/.grits_vault_password --private-key ~/.keys/grits-dev.pem
 ```
 
+For production deployments user prod-playbook.yml instead of site.yml.
+
 Ansible can also provision new instances, however we haven't used this feature yet.
 
 Helpful links:

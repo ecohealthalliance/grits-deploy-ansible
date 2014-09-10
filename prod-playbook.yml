@@ -1,6 +1,6 @@
 ---
 
-- hosts: dev
+- hosts: prod
   roles:
     - common
     - postfix
@@ -9,9 +9,9 @@
     - node
     - s3restore
     - girder
-    - { role: grits-api, sudo_user: "{{ grits_user }}" }
+    - grits-api
     - { role: jvm-nlp, sudo_user: "{{ grits_user }}" }
     - { role: diagnostic-dashboard, sudo_user: "{{ grits_user }}" }
   vars_files:
-    - secure.yml
+    - secure.prod.yml
   sudo: yes

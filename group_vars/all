@@ -21,12 +21,6 @@ meteor_db_name: diagnosis
 meteor_mongo: "mongodb://localhost:27017/{{ meteor_db_name }}"
 mail_url: "smtp://localhost"
 
-run_cron_jobs: True
-diagnose_on_launch: True
-
-s3_mongo_import_directory: diagnosedHMData
-s3_dump_directory: devdump
-
 # where to put cron scripts
 cron_prefix: /home/{{ grits_user }}/cron
 

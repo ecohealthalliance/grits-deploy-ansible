@@ -9,6 +9,7 @@
 command={{ grits_api_prefix }}/env/bin/celery worker -A tasks -Q priority --loglevel=INFO --concurrency={{ celery_priority_workers }}
 directory={{ grits_api_prefix }}
 user={{ grits_user }}
+environment=NLTK_DATA=/home/{{ grits_user }}/nltk_data
 autostart=true
 autorestart=true
 startsecs=10
@@ -29,6 +30,7 @@ killasgroup=true
 command={{ grits_api_prefix }}/env/bin/celery worker -A tasks -Q process -P threads --concurrency 10 --loglevel=INFO
 directory={{ grits_api_prefix }}
 user={{ grits_user }}
+environment=NLTK_DATA=/home/{{ grits_user }}/nltk_data
 autostart=true
 autorestart=true
 startsecs=10
@@ -39,6 +41,7 @@ killasgroup=true
 command={{ grits_api_prefix }}/env/bin/celery worker -A tasks -Q diagnose,priority --loglevel=INFO --concurrency={{ celery_batch_workers }}
 directory={{ grits_api_prefix }}
 user={{ grits_user }}
+environment=NLTK_DATA=/home/{{ grits_user }}/nltk_data
 autostart=true
 autorestart=true
 startsecs=10

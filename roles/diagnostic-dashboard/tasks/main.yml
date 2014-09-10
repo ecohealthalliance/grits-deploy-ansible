@@ -14,9 +14,15 @@
       - forever
 
   - name: Copy diagnostic dashboard source
-    copy: src=diagnostic-dashboard/ dest={{ diagnostic_dashboard_prefix }}
+    copy: src=diagnostic-dashboard/ dest={{ diagnostic_dashboard_prefix }}-source
     register: dashboard_copy
-
+    
+  # The source directory is kept separate so it doesn't appear to be changed
+  # because of the subsequent processing
+  - name: Copy diagnostic dashboard source to deployment directory
+    command: cp -r {{ diagnostic_dashboard_prefix }}-source {{ diagnostic_dashboard_prefix }}
+    when: dashboard_copy.changed
+    
   - name: Create config
     template: src=config.j2 dest={{ diagnostic_dashboard_prefix }}/config mode=0755
 
