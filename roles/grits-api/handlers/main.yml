@@ -1,14 +1,6 @@
 ---
 
-  - name: restart celery
-    supervisorctl: name={{ item }} state=restarted
-    with_items:
-      - celery_process
-      - celery_diagnose
-    sudo: yes
-    sudo_user: root
-  
-  - name: restart flask
-    supervisorctl: name=flask state=restarted
+  - name: restart grits api group
+    supervisorctl: name="gritsapigroup:" state=restarted
     sudo: yes
     sudo_user: root

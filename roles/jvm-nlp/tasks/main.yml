@@ -21,23 +21,35 @@
     sudo_user: root
 
   - name: Copy jvm-nlp
-    copy: src=jvm-nlp/ dest={{ jvm_nlp_prefix }}
+    copy: src=jvm-nlp/ dest={{ jvm_nlp_prefix }}-source
+    register: jvmnlp
+
+  - name: Remove jvm-nlp directory
+    file: path={{ jvm_nlp_prefix }} state=absent
+    when: jvmnlp.changed
+  
+  - name: Replace jvm-nlp deployment directory with the updated source
+    command: cp -r {{ jvm_nlp_prefix }}-source {{ jvm_nlp_prefix }}
+    when: jvmnlp.changed
 
   - name: Run sbt package
     shell: "/bin/bash {{ jvm_nlp_prefix }}/sbt package && echo done > .sbt_package_done"
     args:
       chdir: "{{ jvm_nlp_prefix }}"
       creates: "{{ jvm_nlp_prefix }}/.sbt_package_done"
+    when: jvmnlp.changed
 
   - name: Delete webapps/ROOT*
     shell: "rm -rf /var/lib/tomcat7/webapps/ROOT*"
     sudo: yes
     sudo_user: root
+    when: jvmnlp.changed
 
   - name: Install jvm-nlp to webapps
     shell: "cp {{ jvm_nlp_prefix }}/target/scala-2.11/*.war /var/lib/tomcat7/webapps/ROOT.war"
     sudo: yes
     sudo_user: root
+    when: jvmnlp.changed
 
   # force restart tomcat here, but maybe okay to notify the handler
   - include: ../handlers/main.yml

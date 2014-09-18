@@ -16,20 +16,22 @@
   - name: Copy diagnostic dashboard source
     copy: src=diagnostic-dashboard/ dest={{ diagnostic_dashboard_prefix }}-source
     register: dashboard_copy
-    
+  
+  - name: Remove diagnostic dashboard directory
+    file: path={{ diagnostic_dashboard_prefix }} state=absent
+    sudo: yes
+    sudo_user: root
+    when: dashboard_copy.changed
+  
   # The source directory is kept separate so it doesn't appear to be changed
   # because of the subsequent processing
-  - name: Copy diagnostic dashboard source to deployment directory
+  - name: Replace diagnostic dashboard deployment directory with the updated source
     command: cp -r {{ diagnostic_dashboard_prefix }}-source {{ diagnostic_dashboard_prefix }}
     when: dashboard_copy.changed
     
   - name: Create config
     template: src=config.j2 dest={{ diagnostic_dashboard_prefix }}/config mode=0755
-
-  - name: Remove node_modules directory
-    file: path={{ diagnostic_dashboard_prefix }}/node_modules state=absent
-    sudo: yes
-    sudo_user: root
+    when: dashboard_copy.changed
 
   - name: Remove bundle directory
     file: path={{ diagnostic_dashboard_prefix }}/bundle state=absent
@@ -54,7 +56,7 @@
   - name: Install fibers by npm into bundle
     npm: name=fibers production=yes path={{ diagnostic_dashboard_prefix }}/bundle/programs/server
     when: dashboard_copy.changed
-
+    
   - name: Install supervisord config
     template: src=dashboardd.conf.j2 dest=/etc/supervisor/conf.d/dashboardd.conf
     sudo: yes
@@ -62,7 +64,13 @@
     notify: reload supervisor
     with_items:
       - dashboard
-      
+
+  - name: Restart dashboard process
+    supervisorctl: name="dashboard" state=restarted
+    when: dashboard_copy.changed
+    sudo: yes
+    sudo_user: root
+
   - name: Autocomplete collection
     command: mongo .scripts/autocompleteCollections.js
     args:
