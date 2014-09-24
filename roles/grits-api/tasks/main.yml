@@ -77,7 +77,8 @@
       # This approach might cause annie updates to trigger unnecessairy geonames updates.
       creates: "{{ annie_prefix }}/.geonames.imported"
     sudo: yes
-    sudo_user: "{{ grits_user }}"
+    # This seems to prevent us from writing .geonames.imported
+    # sudo_user: "{{ grits_user }}"
 
   - name: Training
     shell: "{{ grits_env }}/bin/python train.py"

@@ -18,4 +18,5 @@
     creates: /home/{{ grits_user }}/dump/girder
   sudo: yes
   sudo_user: "{{ grits_user }}"
+  # TODO: This nodify doesn't seem to run during some deployments.
   notify: Import girder data from dump
