@@ -15,21 +15,32 @@
     sudo_user: root
 
   - name: Copy grits-api
-    copy: src=grits-api/ dest={{ grits_api_prefix }}
+    copy: src=grits-api/ dest={{ grits_api_prefix }}-source
     notify: restart grits api group
-
+    register: grits_api
+  
+  - name: Remove grits api directory
+    file: path={{ grits_api_prefix }} state=absent
+    sudo: yes
+    sudo_user: root
+    when: grits_api.changed
+    
+  - name: Replace grits-api deployment directory with the updated source
+    command: cp -r {{ grits_api_prefix }}-source {{ grits_api_prefix }}
+    when: grits_api.changed
+  
   - name: Configure grits-api
     template: src=config.py.j2 dest={{ grits_api_prefix }}/config.py
 
   - name: Install requirements
-    pip: requirements={{ grits_api_prefix }}/requirements.txt virtualenv={{ grits_api_prefix }}/env
+    pip: requirements={{ grits_api_prefix }}/requirements.txt virtualenv={{ grits_env }}
 
   # This should be added to requirements.txt
   - name: Install nose
-    pip: name=nose virtualenv={{ grits_api_prefix }}/env
+    pip: name=nose virtualenv={{ grits_env }}
 
   - name: Download nltk data
-    shell: "{{ grits_api_prefix }}/env/bin/python -c \"import nltk; nltk.download('{{ item }}')\" && echo done > .nltk_{{ item }}_downloaded"
+    shell: "{{ grits_env }}/bin/python -c \"import nltk; nltk.download('{{ item }}')\" && echo done > .nltk_{{ item }}_downloaded"
     args:
       chdir: /home/{{ grits_user }}
       creates: /home/{{ grits_user }}/.nltk_{{ item }}_downloaded
@@ -47,10 +58,7 @@
     notify: restart grits api group
 
   - name: Install annie
-    shell: "{{ grits_api_prefix }}/env/bin/python setup.py install && echo done > .annie_installed"
-    args:
-      chdir: "{{ annie_prefix }}"
-      creates: "{{ annie_prefix }}/.annie_installed"
+    pip: name="{{ annie_prefix }}" extra_args="-e" virtualenv={{ grits_env }}
 
   - name: Download geonames data
     get_url: url=http://download.geonames.org/export/dump/allCountries.zip dest={{ annie_prefix }}/allCountries.zip
@@ -63,18 +71,19 @@
       creates: "{{ annie_prefix }}/allCountries.txt"
 
   - name: Import geonames database
-    shell: "{{ grits_api_prefix }}/env/bin/python mongo_import_geonames.py --mongo_url {{ mongo_url }} && echo done > .geonames.imported"
+    shell: "{{ grits_env }}/bin/python mongo_import_geonames.py --mongo_url {{ mongo_url }} && echo done > .geonames.imported"
     args:
       chdir: "{{ annie_prefix }}"
+      # This approach might cause annie updates to trigger unnecessairy geonames updates.
       creates: "{{ annie_prefix }}/.geonames.imported"
     sudo: yes
     sudo_user: "{{ grits_user }}"
 
   - name: Training
-    shell: "{{ grits_api_prefix }}/env/bin/python train.py"
+    shell: "{{ grits_env }}/bin/python train.py"
     args:
       chdir: "{{ grits_api_prefix }}"
-      creates: "{{ grits_api_prefix }}/keyword_array.p"
+      creates: "{{ grits_api_prefix }}/classifier.p"
     tags:
       - train
     notify: restart grits api group

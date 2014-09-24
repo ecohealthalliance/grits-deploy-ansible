@@ -5,7 +5,7 @@ programs=celery_priority,celery_process,celery_diagnose,gritsapi
 priority=999
 
 [program:gritsapi]
-command={{ grits_api_prefix }}/env/bin/python server.py
+command={{ grits_env }}/bin/python server.py
 directory={{ grits_api_prefix }}
 user={{ grits_user }}
 environment=NLTK_DATA=/home/{{ grits_user }}/nltk_data

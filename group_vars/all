@@ -9,6 +9,7 @@ girder_socket_port: 9999
 girder_deployment_mode: production
 
 grits_api_prefix: "/home/{{ grits_user }}/grits-api"
+grits_env: "/home/{{ grits_user }}/grits_env"
 annie_prefix: "/home/{{ grits_user }}/annie"
 diagnostic_dashboard_prefix: "/home/{{ grits_user }}/diagnostic-dashboard"
 jvm_nlp_prefix: "/home/{{ grits_user }}/jvm-nlp"
