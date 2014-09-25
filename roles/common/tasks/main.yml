@@ -1,4 +1,10 @@
 ---
+- name: Gather EC2 facts
+  action: ec2_facts
+  
+- name: Set pulic url
+  set_fact: public_url="https://{{ansible_ec2_public_ipv4}}"
+  when: public_url is not defined
 
 - name: Install common packages from apt
   apt: pkg={{item}} state=installed update_cache=yes

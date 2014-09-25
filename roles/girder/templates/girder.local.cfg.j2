@@ -2,7 +2,7 @@
 server.socket_host: "{{ girder_socket_host }}"
 server.socket_port: {{ girder_socket_port }}
 tools.proxy.on: True
-tools.proxy.base: "{{ apache_url }}{{ girder_mount_path }}"
+tools.proxy.base: "{{ public_url }}{{ girder_mount_path }}"
 tools.proxy.local: ""
 
 [server]
