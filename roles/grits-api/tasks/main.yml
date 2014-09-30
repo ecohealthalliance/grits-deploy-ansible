@@ -57,8 +57,13 @@
     copy: src=annie/ dest={{ annie_prefix }}
     notify: restart grits api group
 
+  # This reinstalls annie on every deployment (it only takes a few seconds tho).
+  # We tried using the pip module and creating a install file, but these create
+  # complications when annie is updated.
   - name: Install annie
-    pip: name="{{ annie_prefix }}" extra_args="-e" virtualenv={{ grits_env }}
+    shell: "{{ grits_env }}/bin/python setup.py install"
+    args:
+      chdir: "{{ annie_prefix }}"
 
   - name: Download geonames data
     get_url: url=http://download.geonames.org/export/dump/allCountries.zip dest={{ annie_prefix }}/allCountries.zip
