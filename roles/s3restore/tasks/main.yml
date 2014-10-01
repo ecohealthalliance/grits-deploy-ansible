@@ -18,5 +18,8 @@
     creates: /home/{{ grits_user }}/dump/girder
   sudo: yes
   sudo_user: "{{ grits_user }}"
-  # TODO: This nodify doesn't seem to run during some deployments.
-  notify: Import girder data from dump
+  register: s3_data_dumped
+  
+- name: Import girder data from dump
+  command: mongorestore /home/{{ grits_user }}/dump --drop
+  when: s3_data_dumped.changed

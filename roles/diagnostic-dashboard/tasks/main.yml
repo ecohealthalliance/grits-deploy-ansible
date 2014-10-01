@@ -16,46 +16,56 @@
   - name: Copy diagnostic dashboard source
     copy: src=diagnostic-dashboard/ dest={{ diagnostic_dashboard_prefix }}-source
     register: dashboard_copy
+    tags: [install_dashboard]
   
   - name: Remove diagnostic dashboard directory
     file: path={{ diagnostic_dashboard_prefix }} state=absent
     sudo: yes
     sudo_user: root
     when: dashboard_copy.changed
+    tags: [install_dashboard]
   
   # The source directory is kept separate so it doesn't appear to be changed
   # because of the subsequent processing
   - name: Replace diagnostic dashboard deployment directory with the updated source
     command: cp -r {{ diagnostic_dashboard_prefix }}-source {{ diagnostic_dashboard_prefix }}
     when: dashboard_copy.changed
+    tags: [install_dashboard]
     
   - name: Create config
     template: src=config.j2 dest={{ diagnostic_dashboard_prefix }}/config mode=0755
     when: dashboard_copy.changed
+    tags: [install_dashboard]
 
   - name: Remove bundle directory
     file: path={{ diagnostic_dashboard_prefix }}/bundle state=absent
     when: dashboard_copy.changed
+    tags: [install_dashboard]
 
-  - name: mrt update
-    command: mrt update chdir={{ diagnostic_dashboard_prefix }}
+  - name: Install meteor packages
+    command: mrt install chdir={{ diagnostic_dashboard_prefix }}
     when: dashboard_copy.changed
+    tags: [install_dashboard]
 
   - name: mrt bundle
     command: mrt bundle bundle.tgz chdir={{ diagnostic_dashboard_prefix }}
     when: dashboard_copy.changed
+    tags: [install_dashboard]
 
   - name: Unarchive bundle
     unarchive: src={{ diagnostic_dashboard_prefix }}/bundle.tgz dest={{ diagnostic_dashboard_prefix }} copy=no
     when: dashboard_copy.changed
+    tags: [install_dashboard]
 
   - name: Remove fibers from bundle
     file: path={{ diagnostic_dashboard_prefix }}/bundle/programs/server/node_modules/fibers state=absent
     when: dashboard_copy.changed
+    tags: [install_dashboard]
 
   - name: Install fibers by npm into bundle
     npm: name=fibers production=yes path={{ diagnostic_dashboard_prefix }}/bundle/programs/server
     when: dashboard_copy.changed
+    tags: [install_dashboard]
     
   - name: Install supervisord config
     template: src=dashboardd.conf.j2 dest=/etc/supervisor/conf.d/dashboardd.conf
@@ -64,16 +74,18 @@
     notify: reload supervisor
     with_items:
       - dashboard
+    tags: [install_dashboard]
 
   - name: Restart dashboard process
     supervisorctl: name="dashboard" state=restarted
     when: dashboard_copy.changed
     sudo: yes
     sudo_user: root
+    tags: [install_dashboard]
 
   - name: Autocomplete collection
     command: mongo .scripts/autocompleteCollections.js
     args:
       chdir: "{{ diagnostic_dashboard_prefix }}"
     when: dashboard_copy.changed
-
+    tags: [install_dashboard]
