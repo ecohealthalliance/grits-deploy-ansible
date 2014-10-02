@@ -40,12 +40,11 @@ VM.  Cron logs go in `/home/grits/cron/logs` by default and supervisor logs are 
 
 ### Deploying to an AWS instance
 
-Create a [host inventory file](http://docs.ansible.com/intro_inventory.html)
-in `/etc/ansible/hosts` with the instance's ip address.
-Next run the playbook using a command like this:
+Edit the inventory.ini file to add instance ip addresses you want to deploy to.
+Then run a command like this:
 
 ```
-ansible-playbook site.yml --vault-password-file ~/.grits_vault_password --private-key ~/.keys/grits-dev.pem
+ansible-playbook site.yml -i inventory.ini --vault-password-file ~/.grits_vault_password --private-key ~/.keys/grits-dev.pem
 ```
 
 For production deployments user prod-playbook.yml instead of site.yml.

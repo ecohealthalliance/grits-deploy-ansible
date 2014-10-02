@@ -1,0 +1,73 @@
+---
+
+# - name: Download elasticsearch
+#   command: wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.3.4.tar.gz
+#   args:
+#     creates: elasticsearch-1.3.4.tar.gz
+#   register: elasticsearch
+
+# - name: Extract elasticsearch
+#   shell: "mkdir {{elasticsearch_path}} && tar -xvzf elasticsearch-1.3.4.tar.gz -C {{elasticsearch_path}} --strip-components=1"
+#   when: elasticsearch.changed
+  
+# - name: Start elasticsearch
+#   command: "{{elasticsearch_path}}/bin/elasticsearch -d -Xmx2g -Xms2g -Des.index.store.type=memory --node.name=my-node&"
+#   when: elasticsearch.changed
+#   sudo: true
+
+# # https://github.com/richardwilly98/elasticsearch-river-mongodb/wiki
+# - name: Install elasticsearch-river-mongodb dep
+#   args:
+#     creates: "{{elasticsearch_path}}/plugins/mapper-attachments/elasticsearch-mapper-attachments-1.9.0.jar" 
+#   command: "{{elasticsearch_path}}/bin/plugin -install elasticsearch/elasticsearch-mapper-attachments/1.9.0"
+  
+# - name: Install elasticsearch-river-mongodb
+#   args:
+#     creates: "{{elasticsearch_path}}/plugins/river-mongodb/elasticsearch-river-mongodb-1.7.3.jar" 
+#   command: "{{elasticsearch_path}}/bin/plugin -i com.github.richardwilly98.elasticsearch/elasticsearch-river-mongodb/1.7.3"
+
+# - name: Restart elasticsearch
+#   command: "{{elasticsearch_path}}/bin/elasticsearch restart"
+#   when: elasticsearch.changed
+
+# - name: Restarting Elasticsearch
+#   service: name=elasticsearch state=restarted
+
+#- command: mongod --replSet "rs0"
+
+- lineinfile: dest=/etc/mongod.conf line="port={{mongo_port}}" regexp="^port(\s*)="
+- lineinfile: dest=/etc/mongod.conf line="bind_ip={{mongo_host}}" regexp="^bind_ip(\s*)="
+- lineinfile: dest=/etc/mongod.conf line="replSet=rs0" regexp="^replSet(\s*)="
+- lineinfile: dest=/etc/mongod.conf line="oplogSize=1024" regexp="^oplogSize(\s*)="
+
+
+- name: Restart mongod
+  service: name=mongod state=restarted
+
+- name: Waiting for mongo restart
+  wait_for: port={{mongo_port}} delay=2
+
+- command: mongo --eval 'rs.initiate({"_id":"rs0","members":[{"_id":1,"host":"{{mongo_host}}:{{mongo_port}}"}]})'
+
+- name: Waiting for elasticsearch restart
+  wait_for: port=9200 delay=2
+
+- name: Configure mongodb elasticsearch river
+  command: curl -XPUT "localhost:9200/_river/mongogridfs/_meta" -d'{{river_config | to_json}}'
+
+- name: Restarting Elasticsearch
+  service: name=elasticsearch state=restarted
+
+- name: Waiting for elasticsearch restart
+  wait_for: port=9200 delay=10
+
+- name: |
+    Get elasticsearch index status 
+    (On the first run the index will be incomplete because there is lots of bg processing left to do)
+  command: curl 'http://localhost:9200/item_index/_status'
+  register: item_index_status
+#- debug: var={{(item_index_status.stdout|from_json).indices.item_index.docs.num_docs}}
+- name: Test elasticsearch index
+  assert:
+    that:
+      - "(item_index_status.stdout|from_json).indices.item_index.docs.num_docs > 0"
