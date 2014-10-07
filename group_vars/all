@@ -41,14 +41,16 @@ river_config:
       - host: "{{mongo_host}}"
         port: "{{mongo_port}}"
     options:
-        # We need to limit the fields used currently
-        # because article 532ca69cf99fe75cf53850d5
-        # is causing an error either due to a schema or invalid character problem.
-        include_fields:
-            - _id
-            - private.scrapedData
-            #- private.cleanContent
-            #- meta.diagnosis
+        exclude_fields:
+            # We need to limit the fields used currently
+            # because article 532ca69cf99fe75cf53850d5
+            # is causing an error either due to a schema or invalid character problem.
+            - private.cleanContent
+            # Dates are causing separate issues when importing:
+            # [15]: index [item_index], type [documents], id [532cd0aef99fe75cf538ba45], message [MapperParsingException[failed to parse [meta.date]]; nested: MapperParsingException[failed to parse date field [2012-08-20 20:03:44], tried both date format [dateOptionalTime], and timestamp number with locale []]; nested: IllegalArgumentException[Invalid format: "2012-08-20 20:03:44" is malformed at " 20:03:44"]; ]
+            - meta.date
+            - created
+            - updated
   index:
     name: item_index
     type: documents

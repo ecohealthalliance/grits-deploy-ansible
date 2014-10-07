@@ -27,7 +27,7 @@
   - name: Remove jvm-nlp directory
     file: path={{ jvm_nlp_prefix }} state=absent
     when: jvmnlp.changed
-  
+
   - name: Replace jvm-nlp deployment directory with the updated source
     command: cp -r {{ jvm_nlp_prefix }}-source {{ jvm_nlp_prefix }}
     when: jvmnlp.changed
