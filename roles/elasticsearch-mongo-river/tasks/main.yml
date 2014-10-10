@@ -27,6 +27,10 @@
   command: curl -XPUT "localhost:9200/_river/mongogridfs/_meta" -d @/etc/riverConfig.json
   when: riverConfig.changed
 
+# We need to change the mappings for meta.countries so it isn't tokenized. See:
+# http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-put-mapping.html
+# http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/_multi_fields.html#_multi_fields
+
 - name: Restarting Elasticsearch
   service: name=elasticsearch state=restarted
 
