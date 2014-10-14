@@ -53,11 +53,22 @@ river_config:
             - updated
   index:
     name: item_index
-    type: documents
+    type: girder_item
   logger:
     river.mongodb: TRACE
     rest.action: TRACE
     org.elasticsearch.river.mongodb.MongoDBRiver: TRACE
+girder_item_config:
+  girder_item:
+    properties:
+      meta:
+        properties:
+          test:
+            type: string
+          # We need to change the mappings for meta.countries so it isn't tokenized:
+          country:
+            type: string
+            index: not_analyzed
 
 mongo_url: localhost
 celery_broker: "mongodb://localhost:27017/tasks"

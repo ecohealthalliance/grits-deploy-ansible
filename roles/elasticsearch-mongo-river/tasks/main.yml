@@ -18,18 +18,26 @@
 - name: Write river config
   template: src=riverConfig.j2 dest=/etc/riverConfig.json mode=0755
   register: riverConfig
+  
+- name: Write girder item mapping config
+  template: src=girderMappingConfig.j2 dest=/etc/girderMappingConfig.json mode=0755
+  register: girderMappingConfig
 
 - name: Dump all elasticsearch data
   command: curl -XDELETE http://localhost:9200/_all 
-  when: riverConfig.changed
+  when: riverConfig.changed or girderMappingConfig.changed
+
+- name: Creating girder item index
+  command: curl -XPUT 'localhost:9200/item_index/'
+  when: riverConfig.changed or girderMappingConfig.changed
+      
+- name: Configure mongodb elasticsearch river
+  command: curl -XPUT "localhost:9200/item_index/girder_item/_mapping" -d @/etc/girderMappingConfig.json
+  when: riverConfig.changed or girderMappingConfig.changed
 
 - name: Configure mongodb elasticsearch river
-  command: curl -XPUT "localhost:9200/_river/mongogridfs/_meta" -d @/etc/riverConfig.json
-  when: riverConfig.changed
-
-# We need to change the mappings for meta.countries so it isn't tokenized. See:
-# http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-put-mapping.html
-# http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/_multi_fields.html#_multi_fields
+  command: curl -XPUT "localhost:9200/_river/mongo_girder_items/_meta" -d @/etc/riverConfig.json
+  when: riverConfig.changed or girderMappingConfig.changed
 
 - name: Restarting Elasticsearch
   service: name=elasticsearch state=restarted
