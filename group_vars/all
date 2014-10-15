@@ -63,8 +63,6 @@ girder_item_config:
     properties:
       meta:
         properties:
-          test:
-            type: string
           # We need to change the mappings for meta.countries so it isn't tokenized:
           country:
             type: string

@@ -2,6 +2,6 @@
 (
     source $HOME/grits_config
     cd "{{ grits_api_prefix }}"
-    "{{ grits_env }}/env/bin/python" diagnose_girder_HM_articles.py
+    "{{ grits_env }}/bin/python" diagnose_girder_HM_articles.py
 
 ) > "{{ cron_logs }}/diagnose_girder_HM_articles_log" 2> "{{ cron_logs }}/diagnose_girder_HM_articles_err"
