@@ -17,21 +17,21 @@
     copy: src=diagnostic-dashboard/ dest={{ diagnostic_dashboard_prefix }}-source
     register: dashboard_copy
     tags: [install_dashboard]
-  
+
   - name: Remove diagnostic dashboard directory
     file: path={{ diagnostic_dashboard_prefix }} state=absent
     sudo: yes
     sudo_user: root
     when: dashboard_copy.changed
     tags: [install_dashboard]
-  
+
   # The source directory is kept separate so it doesn't appear to be changed
   # because of the subsequent processing
   - name: Replace diagnostic dashboard deployment directory with the updated source
     command: cp -r {{ diagnostic_dashboard_prefix }}-source {{ diagnostic_dashboard_prefix }}
     when: dashboard_copy.changed
     tags: [install_dashboard]
-    
+
   - name: Create config
     template: src=config.j2 dest={{ diagnostic_dashboard_prefix }}/config mode=0755
     when: dashboard_copy.changed
@@ -66,7 +66,7 @@
     npm: name=fibers production=yes path={{ diagnostic_dashboard_prefix }}/bundle/programs/server
     when: dashboard_copy.changed
     tags: [install_dashboard]
-    
+
   - name: Install supervisord config
     template: src=dashboardd.conf.j2 dest=/etc/supervisor/conf.d/dashboardd.conf
     sudo: yes
@@ -75,6 +75,54 @@
     with_items:
       - dashboard
     tags: [install_dashboard]
+
+  - name: Install postfix main config
+    template: src=postfix_main.cf.j2 dest=/etc/postfix/main.cf
+    sudo: yes
+    sudo_user: root
+
+  - name: Install postfix master config
+    template: src=postfix_master.cf.j2 dest=/etc/postfix/master.cf
+    sudo: yes
+    sudo_user: root
+
+  - name: Install postfix transport
+    template: src=postfix_transport.j2 dest=/etc/postfix/transport
+    sudo: yes
+    sudo_user: root
+
+  - name: Install postfix aliases
+    template: src=postfix_alias.j2 dest=/etc/postfix/virtual_alias
+    sudo: yes
+    sudo_user: root
+
+  - name: Install postfix access
+    template: src=postfix_access.j2 dest=/etc/postfix/access
+    sudo: yes
+    sudo_user: root
+
+  - name: Install script to pipe mail to dashboard
+    template: src=postfix_gritsmail.sh.j2 dest=/etc/postfix/gritsmail.sh
+
+  - name: Run postmap on transport
+    command: postmap /etc/postfix/transport
+    sudo: yes
+    sudo_user: root
+
+  - name: Run postmap on aliases
+    command: postmap /etc/postfix/virtual_alias
+    sudo: yes
+    sudo_user: root
+
+  - name: Run postmap on access
+    command: postmap /etc/postfix/access
+    sudo: yes
+    sudo_user: root
+
+  - name: Restart postfix
+    command: service postfix restart
+    sudo: yes
+    sudo_user: root
 
   - name: Restart dashboard process
     supervisorctl: name="dashboard" state=restarted
