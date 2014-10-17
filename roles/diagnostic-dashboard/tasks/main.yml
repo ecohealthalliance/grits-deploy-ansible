@@ -102,7 +102,9 @@
     sudo_user: root
 
   - name: Install script to pipe mail to dashboard
-    template: src=postfix_gritsmail.sh.j2 dest=/etc/postfix/gritsmail.sh
+    template: src=postfix_gritsmail.sh.j2 dest=/etc/postfix/gritsmail.sh group={{ grits_group }} owner={{ grits_user }}
+    sudo: yes
+    sudo_user: root
 
   - name: Run postmap on transport
     command: postmap /etc/postfix/transport

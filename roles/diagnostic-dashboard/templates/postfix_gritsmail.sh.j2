@@ -1,1 +1,1 @@
-{ echo "email="; cat; } | curl --data-binary @- http://localhost:{{ meteor_port }}/submit-by-email
+{ echo "email="; cat; } | curl --data-binary @- http://localhost:{{ meteor_port }}/internal/submit-by-email
