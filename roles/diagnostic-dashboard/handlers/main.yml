@@ -1,0 +1,6 @@
+---
+
+  - name: mongo restarted
+    supervisorctl: name=dashboard state=restarted
+    sudo: yes
+    sudo_user: root
