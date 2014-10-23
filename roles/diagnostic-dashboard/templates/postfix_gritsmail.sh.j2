@@ -1,1 +1,1 @@
-{ echo "email="; cat; } | curl --data-binary @- http://localhost:{{ meteor_port }}/internal/submit-by-email
+{ echo "email="; python -c "import sys, urllib; print urllib.quote(sys.stdin.read())"; } | curl --data-binary @- http://localhost:{{ meteor_port }}/internal/submit-by-email
