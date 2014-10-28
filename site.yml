@@ -12,6 +12,8 @@
     - { role: grits-api, sudo_user: "{{ grits_user }}" }
     - { role: jvm-nlp, sudo_user: "{{ grits_user }}" }
     - { role: diagnostic-dashboard, sudo_user: "{{ grits_user }}" }
+    - { role: ansible-elasticsearch, tags: ["elasticsearch"] }
+    - { role: elasticsearch-mongo-river, tags: ["elasticsearch"] }
   vars_files:
     - secure.yml
   sudo: yes

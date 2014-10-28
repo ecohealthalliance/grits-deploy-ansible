@@ -1,0 +1,60 @@
+---
+- lineinfile: dest=/etc/mongod.conf line="port={{mongo_port}}" regexp="^port(\s*)="
+- lineinfile: dest=/etc/mongod.conf line="bind_ip={{mongo_host}}" regexp="^bind_ip(\s*)="
+- lineinfile: dest=/etc/mongod.conf line="replSet=rs0" regexp="^replSet(\s*)="
+- lineinfile: dest=/etc/mongod.conf line="oplogSize=1024" regexp="^oplogSize(\s*)="
+
+- name: Restart mongod
+  service: name=mongod state=restarted
+
+- name: Waiting for mongo restart
+  wait_for: port={{mongo_port}} delay=2
+
+- command: mongo --eval 'rs.initiate({"_id":"rs0","members":[{"_id":1,"host":"{{mongo_host}}:{{mongo_port}}"}]})'
+  # It seems the handler is not notified when I run only this role by its tag.
+  notify: mongo restarted
+
+- name: Waiting for elasticsearch restart
+  wait_for: port=9200 delay=2
+
+- name: Write river config
+  template: src=riverConfig.j2 dest=/etc/riverConfig.json mode=0755
+  register: riverConfig
+  
+- name: Write girder item mapping config
+  template: src=girder_item_template.j2 dest=/etc/girder_item_template.json mode=0755
+  register: girder_item_template
+
+- name: Dump all elasticsearch data
+  command: curl -XDELETE http://localhost:9200/_all 
+  when: riverConfig.changed or girder_item_template.changed
+      
+- name: Add girder item template to elasticsearch
+  command: curl -XPUT "localhost:9200/_template/girder_item_template" -d @/etc/girder_item_template.json
+  when: riverConfig.changed or girder_item_template.changed
+
+- name: Creating girder item index
+  command: curl -XPUT 'localhost:9200/item_index/'
+  when: riverConfig.changed or girder_item_template.changed
+
+- name: Configure mongodb elasticsearch river
+  command: curl -XPUT "localhost:9200/_river/mongo_girder_items/_meta" -d @/etc/riverConfig.json
+  when: riverConfig.changed or girder_item_template.changed
+
+- name: Restarting Elasticsearch
+  service: name=elasticsearch state=restarted
+
+- name: Waiting for elasticsearch restart
+  wait_for: port=9200 delay=10
+
+- name: |
+    Get elasticsearch index status 
+    (On the first run the index will be incomplete because there is lots of bg processing left to do)
+  command: curl 'http://localhost:9200/item_index/_status'
+  register: item_index_status
+#- debug: var={{(item_index_status.stdout|from_json).indices.item_index.docs.num_docs}}
+- name: Test elasticsearch index
+  ignore_errors: yes
+  assert:
+    that:
+      - "(item_index_status.stdout|from_json).indices.item_index.docs.num_docs > 0"

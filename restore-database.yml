@@ -1,0 +1,11 @@
+---
+
+- hosts: prod
+  pre_tasks:
+  - name: Remove old girder data from s3
+    file: path=/home/{{ grits_user }}/dump state=absent
+  roles:
+    - s3restore
+  vars_files:
+    - secure.prod.yml
+  sudo: yes

@@ -19,3 +19,6 @@
 [submodule "jvm-nlp"]
 	path = jvm-nlp
 	url = git@github.com:ecohealthalliance/jvm-nlp.git
+[submodule "roles/ansible-elasticsearch"]
+	path = roles/ansible-elasticsearch
+	url = https://github.com/Traackr/ansible-elasticsearch.git
