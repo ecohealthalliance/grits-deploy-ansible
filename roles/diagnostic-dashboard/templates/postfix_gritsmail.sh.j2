@@ -1,1 +1,1 @@
-{ echo "email="; python -c "import sys, urllib; print urllib.quote(sys.stdin.read())"; } | curl --data-binary @- http://localhost:{{ meteor_port }}/internal/submit-by-email
+python /etc/postfix/parse_email.py | curl --data-binary @- http://localhost:{{ meteor_port }}/internal/submit-by-email
