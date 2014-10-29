@@ -1,6 +1,9 @@
 ---
 
 - hosts: dev
+  pre_tasks:
+  - name: Creating file at root to identify server type
+    file: path=dev state=touch
   roles:
     - common
     - postfix
