@@ -1,6 +1,6 @@
 [program:dashboard]
 command=node {{ diagnostic_dashboard_prefix }}/bundle/main.js
-environment=METEOR_DB_NAME="{{ meteor_db_name }}",MONGO_URL="{{ meteor_mongo }}",PORT="{{ meteor_port }}",ROOT_URL="{{ apache_url }}",MAIL_URL="{{ mail_url }}"
+environment=METEOR_DB_NAME="{{ meteor_db_name }}",MONGO_URL="{{ meteor_mongo }}",PORT="{{ meteor_port }}",ROOT_URL="{{ public_url }}",MAIL_URL="{{ mail_url }}"
 directory={{ diagnostic_dashboard_prefix }}
 user={{ grits_user }}
 numprocs=1

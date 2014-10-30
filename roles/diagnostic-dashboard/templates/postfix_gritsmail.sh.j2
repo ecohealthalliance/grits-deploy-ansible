@@ -1,0 +1,1 @@
+python /etc/postfix/parse_email.py | curl --data-binary @- http://localhost:{{ meteor_port }}/internal/submit-by-email

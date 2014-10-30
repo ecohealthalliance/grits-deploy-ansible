@@ -12,6 +12,7 @@
   ProxyPreserveHost On
   RewriteEngine on
   RewriteRule ^{{ girder_mount_path }}$ {{ girder_mount_path }}/ [R]
+  RewriteRule ^/internal.* [F]
   ProxyPass {{ girder_mount_path }}/ http://localhost:{{ girder_socket_port }}/
   ProxyPassReverse {{ girder_mount_path }}/ http://localhost:{{ girder_socket_port }}/
   ProxyPass /api/v1/public_diagnose http://localhost:5000/public_diagnose
