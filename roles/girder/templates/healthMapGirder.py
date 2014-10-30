@@ -169,7 +169,11 @@ def main(*args):
                 'species': alert.get('species_name'),
                 'description': alert.get('descr', '')
             }
-            desc = alert.get('summary', alert.get('summary_en', ''))
+            desc = alert.get('summary')
+            if not isinstance(desc, basestring):
+                desc = alert.get('summary_en')
+            if not isinstance(desc, basestring):
+                desc = ''
 
             # check if the item already exists
             items = girderSearch(model['item'], {
