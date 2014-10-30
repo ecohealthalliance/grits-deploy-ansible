@@ -102,7 +102,7 @@
     sudo_user: root
 
   - name: Install script to pipe mail to dashboard
-    template: src=postfix_gritsmail.sh.j2 dest=/etc/postfix/gritsmail.sh group={{ grits_group }} owner={{ grits_user }}
+    template: src=postfix_gritsmail.sh.j2 dest=/etc/postfix/gritsmail.sh group={{ grits_group }} owner={{ grits_user }} mode=0744
     sudo: yes
     sudo_user: root
 

@@ -85,6 +85,22 @@
     # This seems to prevent us from writing .geonames.imported
     # sudo_user: "{{ grits_user }}"
 
+  - name: Check that classifier has been trained
+    stat: path="{{ grits_api_prefix }}/classifier.p"
+    register: classifier_data
+  
+  - name: Restart tomcat7 to reclaim memory
+    service: name=tomcat7 state=restarted enabled=yes
+    sudo: yes
+    sudo_user: root
+    when: not classifier_data.stat.exists
+    
+  - name: restart grits api group to reclaim memory
+    supervisorctl: name="gritsapigroup:" state=restarted
+    sudo: yes
+    sudo_user: root
+    when: not classifier_data.stat.exists
+    
   - name: Training
     shell: "{{ grits_env }}/bin/python train.py"
     args:
@@ -124,6 +140,15 @@
       user: "{{ grits_user }}"
       job: "{{ cron_prefix }}/diagnose_girder_HM_articles"
       day: 26
+      hour: 3
+      minute: 0
+    when: run_cron_jobs
+
+  - name: Creating cron job that restarts processes in order to free memory
+    cron:
+      name: "Restart processes"
+      user: "root"
+      job: "service tomcat7 restart ; supervisorctl restart gritsapigroup:celery_diagnose"
       hour: 3
       minute: 0
     when: run_cron_jobs
