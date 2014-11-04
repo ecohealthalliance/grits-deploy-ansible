@@ -49,6 +49,11 @@ river_config:
           # because article 532ca69cf99fe75cf53850d5
           # is causing an error either due to a schema or invalid character problem.
           - private.cleanContent
+          # There is something in the keypoints that ES doesn't like:
+          # [2014-11-04 09:55:15,801][ERROR][org.elasticsearch.river.mongodb.MongoDBRiverBulkProcessor] Bulk processor failed. failure in bulk execution:
+          # [15]: index [item_index], type [girder_item], id [53308011f99fe75cf539754d], message [MapperParsingException[failed to parse [meta.diagnosis.size]]; nested: JsonParseException[Current token (END_OBJECT) not numeric, can not use numeric value accessors
+          #  at [Source: [B@5a5bc694; line: 1, column: 34200]]; ]
+          - meta.diagnosis.keypoints
   index:
     name: item_index
     type: girder_item
