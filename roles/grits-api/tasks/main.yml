@@ -90,12 +90,14 @@
     register: classifier_data
   
   - name: Restart tomcat7 to reclaim memory
+    ignore_errors: yes
     service: name=tomcat7 state=restarted enabled=yes
     sudo: yes
     sudo_user: root
     when: not classifier_data.stat.exists
     
-  - name: restart grits api group to reclaim memory
+  - name: Restart grits api group to reclaim memory
+    ignore_errors: yes
     supervisorctl: name="gritsapigroup:" state=restarted
     sudo: yes
     sudo_user: root
@@ -145,6 +147,8 @@
     when: run_cron_jobs
 
   - name: Creating cron job that restarts processes in order to free memory
+    sudo: yes
+    sudo_user: root
     cron:
       name: "Restart processes"
       user: "root"
