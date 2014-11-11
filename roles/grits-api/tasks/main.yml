@@ -18,17 +18,17 @@
     copy: src=grits-api/ dest={{ grits_api_prefix }}-source
     notify: restart grits api group
     register: grits_api
-  
+
   - name: Remove grits api directory
     file: path={{ grits_api_prefix }} state=absent
     sudo: yes
     sudo_user: root
     when: grits_api.changed
-    
+
   - name: Replace grits-api deployment directory with the updated source
     command: cp -r {{ grits_api_prefix }}-source {{ grits_api_prefix }}
     when: grits_api.changed
-  
+
   - name: Configure grits-api
     template: src=config.py.j2 dest={{ grits_api_prefix }}/config.py
 
@@ -88,20 +88,21 @@
   - name: Check that classifier has been trained
     stat: path="{{ grits_api_prefix }}/classifier.p"
     register: classifier_data
-  
-  - name: Restart tomcat7 to reclaim memory
+
+ - name: Restart tomcat7 to reclaim memory
+    ignore_errors: yes
     service: name=tomcat7 state=restarted enabled=yes
     sudo: yes
     sudo_user: root
     when: not classifier_data.stat.exists
-    ignore_errors: yes
 
-  - name: restart grits api group to reclaim memory
+  - name: Restart grits api group to reclaim memory
+    ignore_errors: yes
     supervisorctl: name="gritsapigroup:" state=restarted
     sudo: yes
     sudo_user: root
     when: not classifier_data.stat.exists
-    ignore_errors: yes
+
   - name: Training
     shell: "{{ grits_env }}/bin/python train.py"
     args:
@@ -151,6 +152,8 @@
     when: run_cron_jobs
 
   - name: Creating cron job that restarts processes in order to free memory
+    sudo: yes
+    sudo_user: root
     cron:
       name: "Restart processes"
       user: "root"
