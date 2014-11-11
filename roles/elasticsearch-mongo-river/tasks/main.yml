@@ -14,8 +14,12 @@
   # It seems the handler is not notified when I run only this role by its tag.
   notify: mongo restarted
 
-- name: Waiting for elasticsearch restart
+- name: Waiting for elasticsearch to start (incase it hasn't already)
   wait_for: port=9200 delay=2
+
+- name: Remove riverConfig file to trigger reindexing.
+  file: path=/etc/riverConfig.json state=absent
+  when: reindex is defined
 
 - name: Write river config
   template: src=riverConfig.j2 dest=/etc/riverConfig.json mode=0755
@@ -43,6 +47,7 @@
 
 - name: Restarting Elasticsearch
   service: name=elasticsearch state=restarted
+  when: riverConfig.changed or girder_item_template.changed
 
 - name: Waiting for elasticsearch restart
   wait_for: port=9200 delay=10
