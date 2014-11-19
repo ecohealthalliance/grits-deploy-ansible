@@ -11,7 +11,7 @@
   wait_for: port={{mongo_port}} delay=2
 
 # Test to see if the replica set has been configured
-- command: mongo --eval 'rs.conf()'
+- command: mongo --eval 'printjson(rs.conf())' --quiet
   register: mongoRsConf
 
 # Running this seems to break the ES river, so it should only happen once.
@@ -51,8 +51,9 @@
   command: curl -XPUT "localhost:9200/_river/mongo_girder_items/_meta" -d @/etc/riverConfig.json
   when: riverConfig.changed or girder_item_template.changed
 
+# This might be wiping out the index.
 - name: Restarting Elasticsearch
-  service: name=elasticsearch state=restarted
+  service: name=elasticsearch state=restarted sleep=3
   when: riverConfig.changed or girder_item_template.changed
 
 - name: Waiting for elasticsearch restart
