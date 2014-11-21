@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 
-import sys
-import os
+import datetime
 import dateutil.parser
 import dateutil.tz
-import datetime
-
+import os
 import pymongo
-
 import requests
+import socket
+import sys
 
 import girder
 from girder.utility import server, model_importer
@@ -96,6 +95,7 @@ def loadHMap(config, day):
       We move the place information from the record set into each alert, and
     combine all alerts into a single list.  We also compute a name for the
     alert, which is the HealthMap link ID followed by '0000'.
+
     :param config: a dictionary with API access information
     :param day: the day to retreive.  Only one day is retrieved at a time.
     :returns: a single list of all retrieved alerts.
@@ -108,7 +108,12 @@ def loadHMap(config, day):
         'edate': (day + oneDay).strftime(config['healthMapDayFMT'])
     }
 
-    response = requests.get(config['healthMapRoot'], params=params)
+    try:
+        response = requests.get(config['healthMapRoot'], params=params,
+                                timeout=120)
+    except (requests.Timeout, socket.timeout):
+        print 'Error requesting health map data: timed out'
+        sys.exit(0)
     if not response.ok:
         raise Exception('Error requesting health map data.')
 
@@ -157,8 +162,8 @@ def filterAlert(alert):
     return alert
 
 
-def girderSearch(m, query):
-    return list(m.find(query))
+def girderSearch(m, query, **kwargs):
+    return list(m.find(query, **kwargs))
 
 
 def setupGirder():
@@ -297,9 +302,14 @@ def loadOneAlert(model, user, folder, currentDate, processedIds, oldIdPlaces,
         'disease': alert.get('disease'),
         'rating': alert.get('rating'),
         'species': alert.get('species_name'),
-        'diseases': alert.get('diseases'),
+        'diseases': alert.get('diseases', [alert.get('disease')]),
+        'place_name': alert.get('placename'),
         'place_id': alert['place_id']
     }
+    # Only add these keys if they are present and not false-like
+    for key in ('geonameid', ):
+        if alert.get(key):
+            place[key] = alert[key]
     desc = alert.get('summary', alert.get('summary_en', ''))
     if desc is None or desc.strip() == '':
         if alert.get('summary_en', ''):
@@ -357,15 +367,16 @@ def loadOneAlert(model, user, folder, currentDate, processedIds, oldIdPlaces,
         for key in meta:
             if item['meta'].get(key, None) != meta[key]:
                 difference = True
-        places = {placeIter['place_id']: placeIter for placeIter in
-                  item['meta'].get(PlacesListName, [])}
-        # Verify that places are not duplicated
+        places = getPlacesDict(item)
+        # Verify that places are not duplicated or missing
         if len(places) != len(item['meta'].get(PlacesListName, [])):
             difference = True
         if not alert['id'] in oldIdPlaces:
             oldIdPlaces[alert['id']] = {}
         for oldPlace in item['meta'].get(PlacesListName, []):
-            oldIdPlaces[alert['id']][oldPlace['place_id']] = oldPlace['country']
+            if 'place_id' in oldPlace:
+                oldIdPlaces[alert['id']][oldPlace['place_id']] = \
+                    oldPlace['country']
         if alert['place_id'] not in places:
             difference = True
         if (not difference and places[alert['place_id']] != place):
@@ -395,6 +406,7 @@ def itemUpdateAndSave(model, item, meta=None, addPlace=None, delPlaces=None):
     """
     Update an item with new metadata, an additional place, or by deleting a
     place.
+
     :param model: a dictionary of girder model references.
     :param item: the item to modify and save.
     :param meta: optional dictionary of metadata to update.
@@ -406,8 +418,7 @@ def itemUpdateAndSave(model, item, meta=None, addPlace=None, delPlaces=None):
         # add/update metadata
         item['meta'].update(meta)
     # Put the current places in a dictionary so we can add or remove from it
-    places = {placeIter['place_id']: placeIter for placeIter in
-              item['meta'].get(PlacesListName, [])}
+    places = getPlacesDict(item)
     if addPlace:
         places[addPlace['place_id']] = addPlace
     if delPlaces:
@@ -424,6 +435,22 @@ def itemUpdateAndSave(model, item, meta=None, addPlace=None, delPlaces=None):
     model['item'].save(item, validate=False)
 
 
+def getPlacesDict(item):
+    """
+    Generate a dictionary with place_id as the key and the values of those
+    places as the values from the item['meta'][PlacesListName] list.  If an
+    entry doesn't have a place_id key, don't include it in the dictionary.
+
+    :param item: item to extract the places from.
+    :returns places: the places dictionary.
+    """
+    places = {}
+    for place in item['meta'].get(PlacesListName, []):
+        if 'place_id' in place:
+            places[place['place_id']] = place
+    return places
+
+
 def removeMissingAlerts(model, processedIds, oldIdPlaces, oldStart, folder):
     """
     Remove alerts that are in the database but weren't in the responses from
@@ -432,6 +459,8 @@ def removeMissingAlerts(model, processedIds, oldIdPlaces, oldStart, folder):
     candidate for removal.  If a place was not in that data, then the place can
     be removed from our alert record, under the assumption that HealthMap
     edited the place to a different location.
+
+
     :param model: a dictionary of girder model references.
     :param processedIds: a dictionary of all alert ids we have processed, each
                          of which is a dictionary of place_ids that we have
@@ -477,7 +506,16 @@ def removeMissingAlerts(model, processedIds, oldIdPlaces, oldStart, folder):
         # We expect exactly one item in the database.
         if len(items) != 1:
             continue
-        print "Missing:", id, missingPlaces, [oldIdPlaces[id][pid] for pid in oldIdPlaces[id] if oldIdPlaces[id][pid] is not None and oldIdPlaces[id][pid] not in processedIds[id].values()] ##DWM::
+        oldCountries = [oldIdPlaces[id][pid] for pid in oldIdPlaces[id]
+                        if oldIdPlaces[id][pid] is not None and
+                        oldIdPlaces[id][pid] not in processedIds[id].values()]
+        if len(missingPlaces)>1:
+            oldStr = str(sorted([int(oldPlace) for oldPlace in missingPlaces]))
+        else:
+            oldStr = missingPlaces[0]
+        if len(oldCountries):
+            oldStr += ' - '+', '.join(oldCountries)
+        print "Alert %s place changed (was %s)" % (id, oldStr)
         itemUpdateAndSave(model, items[0], delPlaces=missingPlaces)
         nUpdated += 1
     return nUpdated
@@ -526,7 +564,69 @@ def main(*args):
     else:
         end = start + datetime.timedelta(1)
 
+    cleanDatabase(model, folder)
+
     loadAlerts(config, model, user, folder, start, end)
+
+
+def cleanDatabase(model, folder):
+    """
+    Remove erroneous items from the database, clean up legacy values, and
+    ensure minimum record patterns.
+
+    :param model: a dictionary of girder model references.
+    :param folder: parent folder for all alerts.
+    """
+    print 'Checking database'
+    # All of our entries should have a date, feed, link, latitude, longitude,
+    # and disease.  If not, remove them.
+    requiredList = ('date', 'feed', 'link', 'latitude', 'longitude', 'disease')
+    query = {'folderId': folder['_id'], '$or': [
+        {'meta.'+key: {'$exists': 0}} for key in requiredList]}
+    items = girderSearch(model['item'], query, limit=1, timeout=False)
+    if len(items):
+        print 'Removing items with missing fields'
+        total = 0
+        while len(items):
+            items = girderSearch(model['item'], query, timeout=False)
+            total += len(items)
+            for item in items:
+                model['item'].remove(item)
+        print "  Removed %d items" % total
+    # Ensure that all items have a diseases list
+    query = {'folderId': folder['_id'], 'meta.diseases': {'$exists': 0}}
+    items = girderSearch(model['item'], query, limit=1, timeout=False)
+    if len(items):
+        print 'Adding diseases list to old items'
+        total = 0
+        while len(items):
+            items = girderSearch(model['item'], query, timeout=False)
+            total += len(items)
+            for item in items:
+                # Make an array of the one disease we know about
+                item['meta']['diseases'] = [item['meta']['disease']]
+                model['item'].save(item)
+        print "  Modified %d items" % total
+    # Ensure that all items have a places list
+    query = {'folderId': folder['_id'], 'meta.'+PlacesListName: {'$exists': 0}}
+    items = girderSearch(model['item'], query, limit=1, timeout=False)
+    if len(items):
+        print 'Adding %s field to old items' % PlacesListName
+        total = 0
+        while len(items):
+            items = girderSearch(model['item'], query, timeout=False)
+            total += len(items)
+            for item in items:
+                # Make an array of the place information we know about
+                place = {}
+                for key in ('latitude', 'longitude', 'country', 'disease',
+                            'rating', 'species', 'diseases', 'place_name',
+                            'place_id', 'geonameid'):
+                    if key in item['meta']:
+                        place[key] = item['meta'][key]
+                item['meta'][PlacesListName] = [place]
+                model['item'].save(item)
+        print "  Modified %d items" % total
 
 
 if __name__ == '__main__':
