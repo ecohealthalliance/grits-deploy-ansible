@@ -36,7 +36,7 @@ https://192.168.15.10/.  The girder database will be hosted at https://192.168.1
 You can access the VM using `vagrant ssh`.  All of the grits components are
 installed as user `grits`.  So to inspect the install try `sudo su - grits` inside the
 VM.  Cron logs go in `/home/grits/cron/logs` by default and supervisor logs are in
-`/var/log/supervisor/`.
+`/var/log/supervisor/`. Elasticsearch logs are in `/var/log/elasticsearch/elasticsearch.log`.
 
 ### Deploying to an AWS instance
 
@@ -46,6 +46,9 @@ Then run a command like this:
 ```
 ansible-playbook site.yml -i inventory.ini --vault-password-file ~/.grits_vault_password --private-key ~/.keys/grits-dev.pem
 ```
+
+Add `--extra-vars "reindex=true"` to regenerate the elasticsearch index
+if it gets messed up.
 
 For production deployments user prod-playbook.yml instead of site.yml.
 
