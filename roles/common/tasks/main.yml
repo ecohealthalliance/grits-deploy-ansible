@@ -37,3 +37,6 @@
 
 - name: Create cron log directory
   file: path={{ cron_logs }} group={{ grits_group }} owner={{ grits_user }} state=directory
+
+- name: Copy git info (so we can read the submodule commit logs if necessairy)
+  copy: src=.git dest=/home/{{ grits_user }}

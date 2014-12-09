@@ -10,12 +10,22 @@
 - name: Waiting for mongo restart
   wait_for: port={{mongo_port}} delay=2
 
+# Test to see if the replica set has been configured
+- command: mongo --eval 'printjson(rs.conf())' --quiet
+  register: mongoRsConf
+
+# Running this seems to break the ES river, so it should only happen once.
 - command: mongo --eval 'rs.initiate({"_id":"rs0","members":[{"_id":1,"host":"{{mongo_host}}:{{mongo_port}}"}]})'
   # It seems the handler is not notified when I run only this role by its tag.
   notify: mongo restarted
+  when: mongoRsConf.stdout == "null"
 
-- name: Waiting for elasticsearch restart
+- name: Waiting for elasticsearch to start (incase it hasn't already)
   wait_for: port=9200 delay=2
+
+- name: Remove riverConfig file to trigger reindexing.
+  file: path=/etc/riverConfig.json state=absent
+  when: reindex is defined
 
 - name: Write river config
   template: src=riverConfig.j2 dest=/etc/riverConfig.json mode=0755
@@ -41,8 +51,10 @@
   command: curl -XPUT "localhost:9200/_river/mongo_girder_items/_meta" -d @/etc/riverConfig.json
   when: riverConfig.changed or girder_item_template.changed
 
+# This might be wiping out the index.
 - name: Restarting Elasticsearch
-  service: name=elasticsearch state=restarted
+  service: name=elasticsearch state=restarted sleep=3
+  when: riverConfig.changed or girder_item_template.changed
 
 - name: Waiting for elasticsearch restart
   wait_for: port=9200 delay=10
