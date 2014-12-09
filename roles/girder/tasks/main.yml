@@ -33,7 +33,7 @@
     pip: requirements=/opt/girder/plugins/geospatial/requirements.txt virtualenv=/opt/girder/env
 
   - name: Install metadata_extractor plugin requirements
-    pip: requirements=/opt/girder/plugins/metadat_extractor/requirements.txt virtualenv=/opt/girder/env
+    pip: requirements=/opt/girder/plugins/metadata_extractor/requirements.txt virtualenv=/opt/girder/env
 
   - name: Install grunt globally
     npm: name={{ item }} global=yes
