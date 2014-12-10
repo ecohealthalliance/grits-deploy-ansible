@@ -89,7 +89,7 @@
     stat: path="{{ grits_api_prefix }}/classifier.p"
     register: classifier_data
 
- - name: Restart tomcat7 to reclaim memory
+  - name: Restart tomcat7 to reclaim memory
     ignore_errors: yes
     service: name=tomcat7 state=restarted enabled=yes
     sudo: yes
