@@ -14,7 +14,11 @@
       - forever
 
   - name: Copy diagnostic dashboard source
-    copy: src=diagnostic-dashboard/ dest={{ diagnostic_dashboard_prefix }}-source
+    synchronize:
+      src: diagnostic-dashboard/
+      dest: "{{ diagnostic_dashboard_prefix }}-source"
+      delete: yes
+      recursive: yes
     register: dashboard_copy
     tags: [install_dashboard]
 
