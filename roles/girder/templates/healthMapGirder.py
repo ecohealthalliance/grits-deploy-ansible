@@ -12,7 +12,7 @@ import sys
 import girder
 from girder.utility import server, model_importer
 
-PlacesListName = 'events'
+EventsListName = 'events'
 
 TimeZoneStr = '''-12 Y
 -11 X NUT SST
@@ -137,7 +137,10 @@ def loadHMap(config, day):
 
 
 def idFromURL(url):
-    # parse the healthmap id from the link url
+    # parse the healthmap id from the link url.  The url is typically of the
+    # form
+    #   http://healthmap.org/ln.php?3010452&trto=en&trfr=zh
+    # though the translation fields are often not present
     l = url.split('?')
     id = l[1].split('&')[0]
     return int(id)
@@ -243,7 +246,7 @@ def loadOneAlert(model, user, folder, currentDate, processedIds, oldIdPlaces,
     differ in other parameters, such as disease(s) and specie.  We store a
     single record in girder for any HealthMap link ID.  When there are multiple
     instances of that alert, we store the information in a list within the
-    metadata (named based on PlacesListName).
+    metadata (named based on EventsListName).
       In order to maintain compatibility with code that was written before
     this, one HealthMap record is also stored in the main meta array.
     Arbitrarily, whichever record has the lowest place_id is selected for this
@@ -303,11 +306,10 @@ def loadOneAlert(model, user, folder, currentDate, processedIds, oldIdPlaces,
         'rating': alert.get('rating'),
         'species': alert.get('species_name'),
         'diseases': alert.get('diseases', [alert.get('disease')]),
-        'place_name': alert.get('placename'),
         'place_id': alert['place_id']
     }
     # Only add these keys if they are present and not false-like
-    for key in ('geonameid', ):
+    for key in ('geonameid', 'place_name'):
         if alert.get(key):
             place[key] = alert[key]
     desc = alert.get('summary', alert.get('summary_en', ''))
@@ -369,11 +371,11 @@ def loadOneAlert(model, user, folder, currentDate, processedIds, oldIdPlaces,
                 difference = True
         places = getPlacesDict(item)
         # Verify that places are not duplicated or missing
-        if len(places) != len(item['meta'].get(PlacesListName, [])):
+        if len(places) != len(item['meta'].get(EventsListName, [])):
             difference = True
         if not alert['id'] in oldIdPlaces:
             oldIdPlaces[alert['id']] = {}
-        for oldPlace in item['meta'].get(PlacesListName, []):
+        for oldPlace in item['meta'].get(EventsListName, []):
             if 'place_id' in oldPlace:
                 oldIdPlaces[alert['id']][oldPlace['place_id']] = \
                     oldPlace['country']
@@ -426,7 +428,7 @@ def itemUpdateAndSave(model, item, meta=None, addPlace=None, delPlaces=None):
             if delPlace in places and len(places)>1:
                 del places[delPlace]
     # Convert places back to an array
-    item['meta'][PlacesListName] = places.values()
+    item['meta'][EventsListName] = places.values()
     # Store the place with the lowest id in the main metadata
     minPlaceId = str(min([int(placeId) for placeId in places]))
     item['meta']['place_id'] = minPlaceId
@@ -438,14 +440,14 @@ def itemUpdateAndSave(model, item, meta=None, addPlace=None, delPlaces=None):
 def getPlacesDict(item):
     """
     Generate a dictionary with place_id as the key and the values of those
-    places as the values from the item['meta'][PlacesListName] list.  If an
+    places as the values from the item['meta'][EventsListName] list.  If an
     entry doesn't have a place_id key, don't include it in the dictionary.
 
     :param item: item to extract the places from.
     :returns places: the places dictionary.
     """
     places = {}
-    for place in item['meta'].get(PlacesListName, []):
+    for place in item['meta'].get(EventsListName, []):
         if 'place_id' in place:
             places[place['place_id']] = place
     return places
@@ -521,7 +523,7 @@ def removeMissingAlerts(model, processedIds, oldIdPlaces, oldStart, folder):
     return nUpdated
 
 
-def main(*args):
+def main(dates=[], opts={}):
     # open config file
     config = loadConfig()
 
@@ -554,17 +556,18 @@ def main(*args):
         raise Exception('Could not find healthmap folder.')
 
     # get the date range to download, defaults to the last 1 day
-    if len(args) >= 1:
+    if len(dates) >= 1:
         # arg 1 start day
-        start = dateutil.parser.parse(args[0])
+        start = dateutil.parser.parse(dates[0])
     else:
         start = datetime.datetime.now() - datetime.timedelta(1)
-    if len(args) >= 2:
-        end = dateutil.parser.parse(args[1])
+    if len(dates) >= 2:
+        end = dateutil.parser.parse(dates[1])
     else:
         end = start + datetime.timedelta(1)
 
-    cleanDatabase(model, folder)
+    if opts.get('clean', False):
+        cleanDatabase(model, folder)
 
     loadAlerts(config, model, user, folder, start, end)
 
@@ -608,10 +611,10 @@ def cleanDatabase(model, folder):
                 model['item'].save(item)
         print "  Modified %d items" % total
     # Ensure that all items have a places list
-    query = {'folderId': folder['_id'], 'meta.'+PlacesListName: {'$exists': 0}}
+    query = {'folderId': folder['_id'], 'meta.'+EventsListName: {'$exists': 0}}
     items = girderSearch(model['item'], query, limit=1, timeout=False)
     if len(items):
-        print 'Adding %s field to old items' % PlacesListName
+        print 'Adding %s field to old items' % EventsListName
         total = 0
         while len(items):
             items = girderSearch(model['item'], query, timeout=False)
@@ -624,30 +627,98 @@ def cleanDatabase(model, folder):
                             'place_id', 'geonameid'):
                     if key in item['meta']:
                         place[key] = item['meta'][key]
-                item['meta'][PlacesListName] = [place]
+                item['meta'][EventsListName] = [place]
                 model['item'].save(item)
         print "  Modified %d items" % total
+    # If possible make sure all places records have a place_id and place_name
+    query = {'folderId': folder['_id'], 'meta.'+EventsListName: {
+        '$elemMatch': {'$or': [{
+            'place_name': {'$exists': 0}},
+            {'place_name': {'$eq': None}},
+            {'place_id': {'$exists': 0}}
+        ]}}}
+    items = girderSearch(model['item'], query, limit=1, timeout=False)
+    if len(items):
+        print 'Adding place_id and place_name to old items'
+        # build a dictionary of all known places so we can do lookups and
+        # populate our records
+        offset = 0
+        placeDict = {}
+        while True:
+            curItems = girderSearch(model['item'], {'folderId': folder['_id']},
+                                 limit=5000, offset=offset, timeout=False)
+            if not len(curItems):
+                break
+            offset += 5000
+            for item in curItems:
+                for place in item['meta'][EventsListName]:
+                    if 'place_id' in place and place.get('place_name', None):
+                        key = (place['longitude'], place['latitude'])
+                        if not key in placeDict:
+                            placeDict[key] = (place['place_id'],
+                                              place['place_name'])
+        print '  %d known places' % len(placeDict)
+        updated = 0
+        unknown = {}
+        items = girderSearch(model['item'], query, limit=0, timeout=False)
+        total = len(items)
+        for item in items:
+            for place in item['meta'][EventsListName]:
+                update = False
+                if ('place_id' not in place or
+                        place.get('place_name', None) is None):
+                    key = (place['longitude'], place['latitude'])
+                    if not key in placeDict:
+                        unknown[key] = True
+                        continue
+                    place['place_id'], place['place_name'] = placeDict[key]
+                    update = True
+            if update:
+                itemUpdateAndSave(model, item)
+                updated += 1
+        print('  Modified %d items (%d had missing place names, %d unknown '
+              'places)' % (updated, total, len(unknown)))
 
 
 if __name__ == '__main__':
     now = datetime.datetime.now()
     fmt = '%Y-%m-%d'
-    if len(sys.argv) < 2 or sys.argv[1] == '--day':
-        yesterday = now - datetime.timedelta(1)
-        args = [yesterday, now]
-        args = [a.strftime(fmt) for a in args]
-    elif sys.argv[1] == '--twoday':
-        yesterday = now - datetime.timedelta(2)
-        args = [yesterday, now]
-        args = [a.strftime(fmt) for a in args]
-    elif sys.argv[1] == '--full':
-        start = datetime.datetime(now.year - 2, now.month, now.day)
-        args = [start, now]
-        args = [a.strftime(fmt) for a in args]
-    elif sys.argv[1] == '--month':
-        start = now - datetime.timedelta(days=31)
-        args = [start, now]
-        args = [a.strftime(fmt) for a in args]
-    else:
-        args = sys.argv[1:]
-    main(*args)
+    dates = []
+    opts = {}
+    for arg in sys.argv[1:]:
+        if arg == '--day':
+            yesterday = now - datetime.timedelta(1)
+            dates = [yesterday, now]
+            dates = [a.strftime(fmt) for a in dates]
+        elif arg == '--twoday':
+            yesterday = now - datetime.timedelta(1)
+            dates = [yesterday, now]
+            dates = [a.strftime(fmt) for a in dates]
+        elif arg == '--full':
+            start = datetime.datetime(now.year - 2, now.month, now.day)
+            dates = [start, now]
+            dates = [a.strftime(fmt) for a in dates]
+        elif arg == '--month':
+            start = now - datetime.timedelta(days=31)
+            dates = [start, now]
+            dates = [a.strftime(fmt) for a in dates]
+        elif arg == '--week':
+            start = now - datetime.timedelta(7)
+            dates = [start, now]
+            dates = [a.strftime(fmt) for a in dates]
+        elif arg == '--verify':
+            opts['clean'] = True
+        elif arg.startswith('--'):
+            print """Load data from healthMap into girder
+
+Syntax: healthMapGirder.py --day|--twoday|--full|--month|--week|
+                           (start date) [(end date)] --verify
+
+Dates are of the form YYYY-MM-DD.  The start date is inclusive; the end date is
+     exclusive.
+--verify checks that the database has all expected fields and converts as
+    necessary from previous schemas."""
+            sys.exit(0)
+        else:
+            dates.append(arg)
+    main(dates, opts)
