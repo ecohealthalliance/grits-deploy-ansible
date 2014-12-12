@@ -9,11 +9,33 @@
       - python-software-properties
       - libffi-dev
 
-  - name: Copy girder
-    copy: src=girder dest=/opt/
+  - name: Sync girder code
+    git: 
+      repo: git@github.com:girder/girder.git
+      dest: /opt/girder
+      accept_hostkey: yes
+      # version: "45ed9c4ee29799226672993b28cb8c17f5941202"
+    register: girder
+  
+  - name: Remove untracked files in girder directory
+    shell: "git clean -f"
+    args:
+      chdir: /opt/girder
+    when: girder.changed
 
-  - name: Copy gritsSearch plugin
-    copy: src=gritsSearch dest=/opt/girder/plugins/
+  - name: Sync gritsSearch code
+    git: 
+      repo: git@github.com:ecohealthalliance/gritsSearch.git
+      dest: /opt/girder/plugins/gritsSearch
+      accept_hostkey: yes
+      version: master
+    register: gritsSearch
+
+  - name: Remove untracked files in gritsSearch directory
+    shell: "git clean -f"
+    args:
+      chdir: /opt/girder/plugins/gritsSearch
+    when: gritsSearch.changed
 
   - name: Install python requirements
     pip: requirements=/opt/girder/requirements.txt virtualenv=/opt/girder/env
