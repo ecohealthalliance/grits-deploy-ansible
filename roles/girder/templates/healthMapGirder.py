@@ -3,6 +3,7 @@
 import datetime
 import dateutil.parser
 import dateutil.tz
+import HTMLParser
 import os
 import pymongo
 import requests
@@ -13,6 +14,7 @@ import girder
 from girder.utility import server, model_importer
 
 EventsListName = 'events'
+htmlParser = HTMLParser.HTMLParser()
 
 TimeZoneStr = '''-12 Y
 -11 X NUT SST
@@ -321,6 +323,9 @@ def loadOneAlert(model, user, folder, currentDate, processedIds, oldIdPlaces,
             if key.startswith('summary_') and alert[key] and alert[key].strip():
                 desc = alert[key]
                 break
+    # The summary is html escaped, so unescape it
+    if desc:
+        desc = htmlParser.unescape(desc)
     if desc is None or desc.strip() == '':
         desc = alert['id']
     desc = desc.strip()
