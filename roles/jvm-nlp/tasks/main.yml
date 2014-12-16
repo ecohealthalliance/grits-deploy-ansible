@@ -22,7 +22,7 @@
       repo: git@github.com:ecohealthalliance/jvm-nlp.git
       dest: "{{ jvm_nlp_prefix }}"
       accept_hostkey: yes
-      version: master
+      version: "{{ jvm_nlp_git_version }}"
     register: jvmnlp
 
   - name: Remove untracked files in jvn-nlp directory

@@ -99,3 +99,11 @@ flower_port: 5555
 
 celery_priority_workers: 1
 celery_batch_workers: 2
+
+# Change these to specific commits before merging into master.
+diagnostic_dashboard_git_version: multi-highlight
+grits_api_git_version: multi-highlight
+annie_git_version: multi-highlight
+jvm_nlp_git_version: "9f199d10e4fa0318f22d422e3e5e358eb1cad976"
+girder_git_version: "45ed9c4ee29799226672993b28cb8c17f5941202"
+gritsSearch_git_version: master

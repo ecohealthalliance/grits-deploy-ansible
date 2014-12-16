@@ -16,7 +16,7 @@
       repo: git@github.com:ecohealthalliance/diagnostic-dashboard.git
       dest: "{{ diagnostic_dashboard_prefix }}"
       accept_hostkey: yes
-      version: multi-highlight
+      version: "{{ diagnostic_dashboard_git_version }}"
     register: dashboard
   
   - name: Remove untracked files in dashboard directory

@@ -14,7 +14,7 @@
       repo: git@github.com:girder/girder.git
       dest: /opt/girder
       accept_hostkey: yes
-      # version: "45ed9c4ee29799226672993b28cb8c17f5941202"
+      version: "{{girder_git_version}}"
     register: girder
   
   - name: Remove untracked files in girder directory
@@ -28,7 +28,7 @@
       repo: git@github.com:ecohealthalliance/gritsSearch.git
       dest: /opt/girder/plugins/gritsSearch
       accept_hostkey: yes
-      version: master
+      version: "{{gritsSearch_git_version}}"
     register: gritsSearch
 
   - name: Remove untracked files in gritsSearch directory

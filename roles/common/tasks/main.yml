@@ -48,22 +48,14 @@
   file: path=/home/grits/{{item}} state=absent
   when: not (indicator_git_dir.stat.isdir is defined and indicator_git_dir.stat.isdir)
   with_items:
-    # - grits-api
-    # - grits-api-source
-    # - annie
+    - grits-api
+    - grits-api-source
+    - annie
     - diagnostic-dashboard
     - diagnostic-dashboard-source
-    # - jvm-nlp
-    # - jvm-nlp-source
+    - jvm-nlp
+    - jvm-nlp-source
 
 - name: Remove old non-git synced girder code
   file: path=/opt/girder state=absent
   when: not (indicator_git_dir.stat.isdir is defined and indicator_git_dir.stat.isdir)
-
-- name: Sync grits-api code
-  git: 
-    repo: git@github.com:ecohealthalliance/grits-api.git
-    dest: "{{ grits_api_prefix }}"
-    accept_hostkey: yes
-    version: multi-highlight
-  register: grits_api

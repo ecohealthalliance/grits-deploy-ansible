@@ -18,7 +18,7 @@
       repo: git@github.com:ecohealthalliance/grits-api.git
       dest: "{{ grits_api_prefix }}"
       accept_hostkey: yes
-      version: multi-highlight
+      version: "{{grits_api_git_version}}"
     register: grits_api
     
   - name: Remove untracked files in grits-api directory
@@ -56,7 +56,7 @@
       repo: git@github.com:ecohealthalliance/annie.git
       dest: "{{ annie_prefix }}"
       accept_hostkey: yes
-      version: multi-highlight
+      version: "{{annie_git_version}}"
     register: annie
   
   - name: Remove untracked files in annie directory
