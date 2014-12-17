@@ -49,8 +49,9 @@
     file: path={{ diagnostic_dashboard_prefix }}/bundle/programs/server/node_modules/fibers state=absent
     when: dashboard.changed
 
+  # version 1.03 causes errors when we try to launch the server
   - name: Install fibers by npm into bundle
-    npm: name=fibers production=yes path={{ diagnostic_dashboard_prefix }}/bundle/programs/server
+    npm: name=fibers production=yes path={{ diagnostic_dashboard_prefix }}/bundle/programs/server version=1.0.2
     when: dashboard.changed
 
   - name: Install supervisord config

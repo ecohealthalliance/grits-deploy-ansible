@@ -100,10 +100,11 @@ flower_port: 5555
 celery_priority_workers: 1
 celery_batch_workers: 2
 
-# Change these to specific commits before merging into master.
-diagnostic_dashboard_git_version: multi-highlight
-grits_api_git_version: multi-highlight
-annie_git_version: multi-highlight
+# The versions can be branch refs to make development easier, but
+# change them to specific commits before merging into master.
+diagnostic_dashboard_git_version: "ca0f052386a3a22cdc9db7a2f97e400560ee2be7"
+grits_api_git_version: "15c477215d8c4952f5af40f7e7bade8935254a85"
+annie_git_version: "14716b60b4a993ab7115177107ccc4567f09192e"
 jvm_nlp_git_version: "9f199d10e4fa0318f22d422e3e5e358eb1cad976"
 girder_git_version: "8165a805249728bca59bc557a9ec72db9c21d748"
 gritsSearch_git_version: "c5eda71fdc4d573705ec1cbc4f50483182113f2d"
