@@ -105,5 +105,5 @@ diagnostic_dashboard_git_version: multi-highlight
 grits_api_git_version: multi-highlight
 annie_git_version: multi-highlight
 jvm_nlp_git_version: "9f199d10e4fa0318f22d422e3e5e358eb1cad976"
-girder_git_version: "45ed9c4ee29799226672993b28cb8c17f5941202"
-gritsSearch_git_version: master
+girder_git_version: "8165a805249728bca59bc557a9ec72db9c21d748"
+gritsSearch_git_version: "c5eda71fdc4d573705ec1cbc4f50483182113f2d"
