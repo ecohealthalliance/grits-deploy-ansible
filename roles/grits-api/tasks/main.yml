@@ -12,23 +12,21 @@
       - libxml2-dev
       - libxslt1-dev
     sudo: yes
-    sudo_user: root
-
-  - name: Copy grits-api
-    copy: src=grits-api/ dest={{ grits_api_prefix }}-source
-    notify: restart grits api group
+  
+  - name: Sync grits-api code
+    git: 
+      repo: git@github.com:ecohealthalliance/grits-api.git
+      dest: "{{ grits_api_prefix }}"
+      accept_hostkey: yes
+      version: "{{grits_api_git_version}}"
     register: grits_api
-  
-  - name: Remove grits api directory
-    file: path={{ grits_api_prefix }} state=absent
-    sudo: yes
-    sudo_user: root
-    when: grits_api.changed
     
-  - name: Replace grits-api deployment directory with the updated source
-    command: cp -r {{ grits_api_prefix }}-source {{ grits_api_prefix }}
+  - name: Remove untracked files in grits-api directory
+    shell: "git clean -f"
+    args:
+      chdir: "{{ grits_api_prefix }}"
     when: grits_api.changed
-  
+
   - name: Configure grits-api
     template: src=config.py.j2 dest={{ grits_api_prefix }}/config.py
 
@@ -53,17 +51,28 @@
     sudo_user: "{{ grits_user }}"
     notify: restart grits api group
 
-  - name: Copy annie
-    copy: src=annie/ dest={{ annie_prefix }}
-    notify: restart grits api group
-
-  # This reinstalls annie on every deployment (it only takes a few seconds tho).
+  - name: Sync annie code
+    git: 
+      repo: git@github.com:ecohealthalliance/annie.git
+      dest: "{{ annie_prefix }}"
+      accept_hostkey: yes
+      version: "{{annie_git_version}}"
+    register: annie
+  
+  - name: Remove untracked files in annie directory
+    shell: "git clean -f"
+    args:
+      chdir: "{{ annie_prefix }}"
+    when: annie.changed
+  
   # We tried using the pip module and creating a install file, but these create
   # complications when annie is updated.
   - name: Install annie
     shell: "{{ grits_env }}/bin/python setup.py install"
     args:
       chdir: "{{ annie_prefix }}"
+    when: annie.changed
+    notify: restart grits api group
 
   - name: Download geonames data
     get_url: url=http://download.geonames.org/export/dump/allCountries.zip dest={{ annie_prefix }}/allCountries.zip
@@ -82,27 +91,23 @@
       # This approach might cause annie updates to trigger unnecessairy geonames updates.
       creates: "{{ annie_prefix }}/.geonames.imported"
     sudo: yes
-    # This seems to prevent us from writing .geonames.imported
-    # sudo_user: "{{ grits_user }}"
 
   - name: Check that classifier has been trained
     stat: path="{{ grits_api_prefix }}/classifier.p"
     register: classifier_data
-  
+
   - name: Restart tomcat7 to reclaim memory
     ignore_errors: yes
     service: name=tomcat7 state=restarted enabled=yes
     sudo: yes
-    sudo_user: root
     when: not classifier_data.stat.exists
-    
+
   - name: Restart grits api group to reclaim memory
     ignore_errors: yes
     supervisorctl: name="gritsapigroup:" state=restarted
     sudo: yes
-    sudo_user: root
     when: not classifier_data.stat.exists
-    
+
   - name: Training
     shell: "{{ grits_env }}/bin/python train.py"
     args:
@@ -112,11 +117,15 @@
       - train
     notify: restart grits api group
 
+  - name: Load mongo keywords
+    shell: "{{ grits_env }}/bin/python mongo_import_keywords.py"
+    args:
+      chdir: "{{ grits_api_prefix }}"
+
   - name: Install supervisord configs
     template: src={{ item }}.conf.j2 dest=/etc/supervisor/conf.d/{{ item }}.conf
     notify: reload supervisor
     sudo: yes
-    sudo_user: root
     with_items:
       - celeryd
       - gritsapid
@@ -125,7 +134,6 @@
     template: src=flowerd.conf.j2 dest=/etc/supervisor/conf.d/flowerd.conf
     notify: reload supervisor
     sudo: yes
-    sudo_user: root
     when: flower_password != ""
 
   - name: Copy cron script
@@ -148,7 +156,6 @@
 
   - name: Creating cron job that restarts processes in order to free memory
     sudo: yes
-    sudo_user: root
     cron:
       name: "Restart processes"
       user: "root"

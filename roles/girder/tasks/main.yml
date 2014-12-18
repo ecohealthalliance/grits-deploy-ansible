@@ -9,23 +9,65 @@
       - python-software-properties
       - libffi-dev
 
-  - name: Copy girder
-    copy: src=girder dest=/opt/
+  - name: Update pip
+    pip: name=pip extra_args=-U
+    sudo: yes
+    sudo_user: root
 
-  - name: Copy gritsSearch plugin
-    copy: src=gritsSearch dest=/opt/girder/plugins/
+  - name: Sync girder code
+    git: 
+      repo: git@github.com:girder/girder.git
+      dest: /opt/girder
+      accept_hostkey: yes
+      version: "{{girder_git_version}}"
+    register: girder
+  
+  - name: Remove untracked files in girder directory
+    shell: "git clean -f"
+    args:
+      chdir: /opt/girder
+    when: girder.changed
+
+  - name: Sync gritsSearch code
+    git: 
+      repo: git@github.com:ecohealthalliance/gritsSearch.git
+      dest: /opt/girder/plugins/gritsSearch
+      accept_hostkey: yes
+      version: "{{gritsSearch_git_version}}"
+    register: gritsSearch
+
+  - name: Remove untracked files in gritsSearch directory
+    shell: "git clean -f"
+    args:
+      chdir: /opt/girder/plugins/gritsSearch
+    when: gritsSearch.changed
+
+  - name: Set girder directory ownership to grits user
+    shell: "chown -R {{ grits_user }} /opt/girder"
+    #when: gritsSearch.changed
 
   - name: Install python requirements
     pip: requirements=/opt/girder/requirements.txt virtualenv=/opt/girder/env
 
-  - name: Install dateutil
-    pip: name=python-dateutil virtualenv=/opt/girder/env
+  - name: Install grits plugin requirements
+    pip: requirements=/opt/girder/plugins/gritsSearch/requirements.txt virtualenv=/opt/girder/env
+
+  - name: Install celery plugin requirements
+    pip: requirements=/opt/girder/plugins/celery_jobs/requirements.txt virtualenv=/opt/girder/env
+
+  - name: Install geospatial plugin requirements
+    pip: requirements=/opt/girder/plugins/geospatial/requirements.txt virtualenv=/opt/girder/env
+
+  - name: Install metadata_extractor plugin requirements
+    pip: requirements=/opt/girder/plugins/metadata_extractor/requirements.txt virtualenv=/opt/girder/env
 
   - name: Install grunt globally
     npm: name={{ item }} global=yes
     with_items:
       - grunt
       - grunt-cli
+    sudo: yes
+    sudo_user: root
 
   - name: Install local npm requirements
     npm: path=/opt/girder production=yes

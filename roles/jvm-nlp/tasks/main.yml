@@ -3,7 +3,6 @@
   - name: Install apt dependencies
     apt: pkg={{ item }} state=installed
     sudo: yes
-    sudo_user: root
     with_items:
       - default-jre
       - default-jdk
@@ -12,24 +11,24 @@
   - name: Configure tomcat
     template: src=tomcat7.j2 dest=/etc/default/tomcat7
     sudo: yes
-    sudo_user: root
     notify: restart tomcat
 
   - name: Enable tomcat service
     service: name=tomcat7 state=started enabled=yes
     sudo: yes
-    sudo_user: root
 
-  - name: Copy jvm-nlp
-    copy: src=jvm-nlp/ dest={{ jvm_nlp_prefix }}-source
+  - name: Sync jvm-nlp code
+    git: 
+      repo: git@github.com:ecohealthalliance/jvm-nlp.git
+      dest: "{{ jvm_nlp_prefix }}"
+      accept_hostkey: yes
+      version: "{{ jvm_nlp_git_version }}"
     register: jvmnlp
 
-  - name: Remove jvm-nlp directory
-    file: path={{ jvm_nlp_prefix }} state=absent
-    when: jvmnlp.changed
-
-  - name: Replace jvm-nlp deployment directory with the updated source
-    command: cp -r {{ jvm_nlp_prefix }}-source {{ jvm_nlp_prefix }}
+  - name: Remove untracked files in jvn-nlp directory
+    shell: "git clean -f"
+    args:
+      chdir: "{{ jvm_nlp_prefix }}"
     when: jvmnlp.changed
 
   - name: Run sbt package
@@ -42,13 +41,11 @@
   - name: Delete webapps/ROOT*
     shell: "rm -rf /var/lib/tomcat7/webapps/ROOT*"
     sudo: yes
-    sudo_user: root
     when: jvmnlp.changed
 
   - name: Install jvm-nlp to webapps
     shell: "cp {{ jvm_nlp_prefix }}/target/scala-2.11/*.war /var/lib/tomcat7/webapps/ROOT.war"
     sudo: yes
-    sudo_user: root
     when: jvmnlp.changed
 
   # force restart tomcat here, but maybe okay to notify the handler

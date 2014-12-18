@@ -3,144 +3,115 @@
   - name: Install meteor
     shell: curl https://install.meteor.com | /bin/sh chdir=/tmp creates=/usr/local/bin/meteor
     sudo: yes
-    sudo_user: root
 
   - name: Install meteor npm modules
     npm: name={{ item }} global=yes state=present
     sudo: yes
-    sudo_user: root
     with_items:
       - meteorite
       - forever
 
-  - name: Copy diagnostic dashboard source
-    copy: src=diagnostic-dashboard/ dest={{ diagnostic_dashboard_prefix }}-source
-    register: dashboard_copy
-    tags: [install_dashboard]
-
-  - name: Remove diagnostic dashboard directory
-    file: path={{ diagnostic_dashboard_prefix }} state=absent
-    sudo: yes
-    sudo_user: root
-    when: dashboard_copy.changed
-    tags: [install_dashboard]
-
-  # The source directory is kept separate so it doesn't appear to be changed
-  # because of the subsequent processing
-  - name: Replace diagnostic dashboard deployment directory with the updated source
-    command: cp -r {{ diagnostic_dashboard_prefix }}-source {{ diagnostic_dashboard_prefix }}
-    when: dashboard_copy.changed
-    tags: [install_dashboard]
+  - name: Sync diagnostic dashboard code
+    git: 
+      repo: git@github.com:ecohealthalliance/diagnostic-dashboard.git
+      dest: "{{ diagnostic_dashboard_prefix }}"
+      accept_hostkey: yes
+      version: "{{ diagnostic_dashboard_git_version }}"
+    register: dashboard
+  
+  - name: Remove untracked files in dashboard directory
+    shell: "git clean -f"
+    args:
+      chdir: "{{ diagnostic_dashboard_prefix }}"
+    when: dashboard.changed
 
   - name: Create config
     template: src=config.j2 dest={{ diagnostic_dashboard_prefix }}/config mode=0755
-    when: dashboard_copy.changed
-    tags: [install_dashboard]
+    when: dashboard.changed
 
   - name: Remove bundle directory
     file: path={{ diagnostic_dashboard_prefix }}/bundle state=absent
-    when: dashboard_copy.changed
-    tags: [install_dashboard]
+    when: dashboard.changed
 
   - name: Install meteor packages
     command: mrt install chdir={{ diagnostic_dashboard_prefix }}
-    when: dashboard_copy.changed
-    tags: [install_dashboard]
+    when: dashboard.changed
 
   - name: mrt bundle
     command: mrt bundle bundle.tgz chdir={{ diagnostic_dashboard_prefix }}
-    when: dashboard_copy.changed
-    tags: [install_dashboard]
+    when: dashboard.changed
 
   - name: Unarchive bundle
     unarchive: src={{ diagnostic_dashboard_prefix }}/bundle.tgz dest={{ diagnostic_dashboard_prefix }} copy=no
-    when: dashboard_copy.changed
-    tags: [install_dashboard]
+    when: dashboard.changed
 
   - name: Remove fibers from bundle
     file: path={{ diagnostic_dashboard_prefix }}/bundle/programs/server/node_modules/fibers state=absent
-    when: dashboard_copy.changed
-    tags: [install_dashboard]
+    when: dashboard.changed
 
+  # version 1.03 causes errors when we try to launch the server
   - name: Install fibers by npm into bundle
-    npm: name=fibers production=yes path={{ diagnostic_dashboard_prefix }}/bundle/programs/server
-    when: dashboard_copy.changed
-    tags: [install_dashboard]
+    npm: name=fibers production=yes path={{ diagnostic_dashboard_prefix }}/bundle/programs/server version=1.0.2
+    when: dashboard.changed
 
   - name: Install supervisord config
     template: src=dashboardd.conf.j2 dest=/etc/supervisor/conf.d/dashboardd.conf
     sudo: yes
-    sudo_user: root
     notify: reload supervisor
     with_items:
       - dashboard
-    tags: [install_dashboard]
 
   - name: Install postfix main config
     template: src=postfix_main.cf.j2 dest=/etc/postfix/main.cf
     sudo: yes
-    sudo_user: root
 
   - name: Install postfix master config
     template: src=postfix_master.cf.j2 dest=/etc/postfix/master.cf
     sudo: yes
-    sudo_user: root
 
   - name: Install postfix transport
     template: src=postfix_transport.j2 dest=/etc/postfix/transport
     sudo: yes
-    sudo_user: root
 
   - name: Install postfix aliases
     template: src=postfix_alias.j2 dest=/etc/postfix/virtual_alias
     sudo: yes
-    sudo_user: root
 
   - name: Install postfix access
     template: src=postfix_access.j2 dest=/etc/postfix/access
     sudo: yes
-    sudo_user: root
 
   - name: Install script to pipe mail to dashboard
     template: src=postfix_gritsmail.sh.j2 dest=/etc/postfix/gritsmail.sh group={{ grits_group }} owner={{ grits_user }} mode=0744
     sudo: yes
-    sudo_user: root
 
   - name: Install script to pipe mail to dashboard
     template: src=parse_email.py dest=/etc/postfix/parse_email.py group={{ grits_group }} owner={{ grits_user }}
     sudo: yes
-    sudo_user: root
 
   - name: Run postmap on transport
     command: postmap /etc/postfix/transport
     sudo: yes
-    sudo_user: root
 
   - name: Run postmap on aliases
     command: postmap /etc/postfix/virtual_alias
     sudo: yes
-    sudo_user: root
 
   - name: Run postmap on access
     command: postmap /etc/postfix/access
     sudo: yes
-    sudo_user: root
 
   - name: Restart postfix
     command: service postfix restart
     sudo: yes
-    sudo_user: root
 
   - name: Restart dashboard process
     supervisorctl: name="dashboard" state=restarted
-    when: dashboard_copy.changed
+    when: dashboard.changed
     sudo: yes
-    sudo_user: root
-    tags: [install_dashboard]
 
   - name: Autocomplete collection
     command: mongo .scripts/autocompleteCollections.js
     args:
       chdir: "{{ diagnostic_dashboard_prefix }}"
-    when: dashboard_copy.changed
-    tags: [install_dashboard]
+    when: dashboard.changed
