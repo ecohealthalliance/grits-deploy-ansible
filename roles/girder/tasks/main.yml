@@ -42,6 +42,10 @@
       chdir: /opt/girder/plugins/gritsSearch
     when: gritsSearch.changed
 
+  - name: Set girder directory ownership to grits user
+    shell: "chown -R {{ grits_user }} /opt/girder"
+    #when: gritsSearch.changed
+
   - name: Install python requirements
     pip: requirements=/opt/girder/requirements.txt virtualenv=/opt/girder/env
 

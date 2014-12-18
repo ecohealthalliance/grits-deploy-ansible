@@ -11,7 +11,7 @@
     - mongodb
     - node
     - s3restore
-    - girder
+    - { role: girder, tags: ["girder"] }
     - grits-api
     - { role: jvm-nlp }
     - { role: diagnostic-dashboard, tags: ["dashboard"] }
