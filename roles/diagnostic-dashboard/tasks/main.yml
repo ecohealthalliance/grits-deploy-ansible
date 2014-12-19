@@ -1,16 +1,5 @@
 ---
 
-  - name: Install meteor
-    shell: curl https://install.meteor.com | /bin/sh chdir=/tmp creates=/usr/local/bin/meteor
-    sudo: yes
-
-  - name: Install meteor npm modules
-    npm: name={{ item }} global=yes state=present
-    sudo: yes
-    with_items:
-      - meteorite
-      - forever
-
   - name: Sync diagnostic dashboard code
     git: 
       repo: git@github.com:ecohealthalliance/diagnostic-dashboard.git
@@ -18,6 +7,15 @@
       accept_hostkey: yes
       version: "{{ diagnostic_dashboard_git_version }}"
     register: dashboard
+
+  - name: Remove meteor
+    file: path=/usr/local/bin/meteor state=absent
+    when: dashboard.changed
+
+  - name: Install meteor
+    shell: curl https://install.meteor.com | /bin/sh chdir=/tmp creates=/usr/local/bin/meteor
+    sudo: yes
+    when: dashboard.changed
   
   - name: Remove untracked files in dashboard directory
     shell: "git clean -f"
@@ -33,26 +31,18 @@
     file: path={{ diagnostic_dashboard_prefix }}/bundle state=absent
     when: dashboard.changed
 
-  - name: Install meteor packages
-    command: mrt install chdir={{ diagnostic_dashboard_prefix }}
-    when: dashboard.changed
-
-  - name: mrt bundle
-    command: mrt bundle bundle.tgz chdir={{ diagnostic_dashboard_prefix }}
+  - name: meteor bundle
+    command: meteor bundle bundle.tgz chdir={{ diagnostic_dashboard_prefix }}
     when: dashboard.changed
 
   - name: Unarchive bundle
     unarchive: src={{ diagnostic_dashboard_prefix }}/bundle.tgz dest={{ diagnostic_dashboard_prefix }} copy=no
     when: dashboard.changed
 
-  - name: Remove fibers from bundle
-    file: path={{ diagnostic_dashboard_prefix }}/bundle/programs/server/node_modules/fibers state=absent
-    when: dashboard.changed
-
-  # version 1.03 causes errors when we try to launch the server
-  - name: Install fibers by npm into bundle
-    npm: name=fibers production=yes path={{ diagnostic_dashboard_prefix }}/bundle/programs/server version=1.0.2
-    when: dashboard.changed
+  - name: Install npm modules
+    command: npm install
+    args:
+      chdir: "{{ diagnostic_dashboard_prefix }}/bundle/programs/server"
 
   - name: Install supervisord config
     template: src=dashboardd.conf.j2 dest=/etc/supervisor/conf.d/dashboardd.conf
