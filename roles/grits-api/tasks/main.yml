@@ -120,7 +120,7 @@
 
   - name: Load mongo keywords
     shell: "{{ grits_env }}/bin/python mongo_import_keywords.py"
-    when: train_result.changed
+    when: not train_result.skipped
     args:
       chdir: "{{ grits_api_prefix }}"
 
