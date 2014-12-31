@@ -51,13 +51,16 @@
   command: curl -XPUT "localhost:9200/_river/mongo_girder_items/_meta" -d @/etc/riverConfig.json
   when: riverConfig.changed or girder_item_template.changed
 
-# This might be wiping out the index.
-- name: Restarting Elasticsearch
-  service: name=elasticsearch state=restarted sleep=3
-  when: riverConfig.changed or girder_item_template.changed
+# # This might be wiping out the index.
+# - name: Restarting Elasticsearch
+#   service: name=elasticsearch state=restarted sleep=3
+#   when: riverConfig.changed or girder_item_template.changed
 
-- name: Waiting for elasticsearch restart
-  wait_for: port=9200 delay=10
+# - name: Waiting for elasticsearch restart
+#   wait_for: port=9200 delay=10
+
+- name: Wait for some indexing to take place
+  pause: seconds=5
 
 - name: |
     Get elasticsearch index status 
