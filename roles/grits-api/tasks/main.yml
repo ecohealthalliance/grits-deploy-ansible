@@ -23,7 +23,7 @@
     notify: restart grits api group
     
   - name: Remove untracked files in grits-api directory
-    shell: "git clean -f"
+    shell: "git clean -dfx"
     args:
       chdir: "{{ grits_api_prefix }}"
     when: grits_api.changed
@@ -60,7 +60,7 @@
     register: annie
   
   - name: Remove untracked files in annie directory
-    shell: "git clean -f"
+    shell: "git clean -dfx"
     args:
       chdir: "{{ annie_prefix }}"
     when: annie.changed
