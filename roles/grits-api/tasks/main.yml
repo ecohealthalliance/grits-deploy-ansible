@@ -165,3 +165,13 @@
       hour: 3
       minute: 0
     when: run_cron_jobs
+
+  - name: Copy girder cleanup script
+    template:
+      src: cleanup_girder.js
+      dest: /tmp/
+    tags: [cleanup_girder]
+  
+  - name: Cleanup girder DB
+    command: mongo localhost:27017/girder /tmp/cleanup_girder.js
+    tags: [cleanup_girder]
