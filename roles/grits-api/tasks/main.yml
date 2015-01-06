@@ -92,41 +92,6 @@
       creates: "{{ annie_prefix }}/.geonames.imported"
     sudo: yes
 
-  - name: Check that classifier has been trained
-    stat: path="{{ grits_api_prefix }}/classifier.p"
-    register: classifier_data
-
-  - name: Restart tomcat7 to reclaim memory
-    ignore_errors: yes
-    service: name=tomcat7 state=restarted enabled=yes
-    sudo: yes
-    when: not classifier_data.stat.exists
-
-  
-  - name: Stop grits api group to reclaim memory
-    # The notify command will restart the grits api group after the tasks finish
-    notify: restart grits api group
-    ignore_errors: yes
-    supervisorctl: name="gritsapigroup:" state=stopped
-    sudo: yes
-    when: not classifier_data.stat.exists
-
-  - name: Training
-    shell: "{{ grits_env }}/bin/python train.py"
-    args:
-      chdir: "{{ grits_api_prefix }}"
-      creates: "{{ grits_api_prefix }}/classifier.p"
-    tags:
-      - train
-    notify: restart grits api group
-    register: train_result
-
-  - name: Load mongo keywords
-    shell: "{{ grits_env }}/bin/python mongo_import_keywords.py"
-    when: not train_result.skipped
-    args:
-      chdir: "{{ grits_api_prefix }}"
-
   - name: Install supervisord configs
     template: src={{ item }}.conf.j2 dest=/etc/supervisor/conf.d/{{ item }}.conf
     notify: reload supervisor
