@@ -1,0 +1,35 @@
+---
+
+- hosts: dev
+  pre_tasks:
+  # - name: Restart tomcat7 to reclaim memory
+  #   ignore_errors: yes
+  #   service: name=tomcat7 state=restarted enabled=yes
+  #   sudo: yes
+
+  # - name: Stop grits api group to reclaim memory
+  #   ignore_errors: yes
+  #   supervisorctl: name="gritsapigroup:" state=stopped
+  #   sudo: yes
+
+  - apt: name=expect-dev state=present
+  
+  - name: Training classifier
+    shell: "mkdir {{item}} && unbuffer {{ grits_env }}/bin/python train.py -pickle_dir {{item}} | tee {{item}}/result.txt"
+    args:
+      chdir: "{{ grits_api_prefix }}"
+    with_items:
+      - 'test'
+
+  - name: Loading mongo keywords
+    shell: "{{ grits_env }}/bin/python mongo_import_keywords.py"
+    args:
+      chdir: "{{ grits_api_prefix }}"
+  
+  - name: Start grits api group
+    supervisorctl: name="gritsapigroup:" state=started
+    sudo: yes
+
+  vars_files:
+    - secure.yml
+  sudo: yes
