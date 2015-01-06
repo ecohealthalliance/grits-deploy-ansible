@@ -20,6 +20,7 @@
       accept_hostkey: yes
       version: "{{grits_api_git_version}}"
     register: grits_api
+    notify: restart grits api group
     
   - name: Remove untracked files in grits-api directory
     shell: "git clean -f"
@@ -49,7 +50,6 @@
       - punkt
     sudo: yes
     sudo_user: "{{ grits_user }}"
-    notify: restart grits api group
 
   - name: Sync annie code
     git: 
@@ -102,9 +102,12 @@
     sudo: yes
     when: not classifier_data.stat.exists
 
-  - name: Restart grits api group to reclaim memory
+  
+  - name: Stop grits api group to reclaim memory
+    # The notify command will restart the grits api group after the tasks finish
+    notify: restart grits api group
     ignore_errors: yes
-    supervisorctl: name="gritsapigroup:" state=restarted
+    supervisorctl: name="gritsapigroup:" state=stopped
     sudo: yes
     when: not classifier_data.stat.exists
 
