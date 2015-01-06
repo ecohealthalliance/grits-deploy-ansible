@@ -18,7 +18,7 @@
     when: dashboard.changed
   
   - name: Remove untracked files in dashboard directory
-    shell: "git clean -f"
+    shell: "git clean -dfx"
     args:
       chdir: "{{ diagnostic_dashboard_prefix }}"
     when: dashboard.changed
