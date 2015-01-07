@@ -139,7 +139,9 @@
       src: cleanup_girder.js
       dest: /tmp/
     tags: [cleanup_girder]
+    when: cleanup_girder is defined
   
   - name: Cleanup girder DB
     command: mongo localhost:27017/girder /tmp/cleanup_girder.js
     tags: [cleanup_girder]
+    when: cleanup_girder is defined
