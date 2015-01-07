@@ -30,6 +30,12 @@
   - name: Configure grits-api
     template: src=config.py.j2 dest={{ grits_api_prefix }}/config.py
 
+  - name: Temp workaround for nltk install issue github.com/nltk/nltk/issues/824
+    pip: name=setuptools version=9.1 virtualenv={{ grits_env }}
+
+  - name: Install numpy
+    pip: name=numpy virtualenv={{ grits_env }}
+
   - name: Install requirements
     pip: requirements={{ grits_api_prefix }}/requirements.txt virtualenv={{ grits_env }}
 
