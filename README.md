@@ -6,6 +6,10 @@ user interface, the [grits-api](https://github.com/ecohealthalliance/grits-api)
 backend, the [girder](https://github.com/girder/girder) database, and 
 all dependencies.
 
+### Configuration
+
+Before using this repository, use [ansible-vault](http://docs.ansible.com/playbooks_vault.html) to create a secure.yml file with sensitive passwords and other information. Copy the format in secure.yml.sample.
+
 ### Deploying to a virtual machine
 
 Included in this repository is everything you need to deploy the entire
@@ -50,7 +54,9 @@ ansible-playbook site.yml -i inventory.ini --vault-password-file ~/.grits_vault_
 Add `--extra-vars "reindex=true"` to regenerate the elasticsearch index
 if it gets messed up.
 
-For production deployments user prod-playbook.yml instead of site.yml.
+For production deployments use prod-playbook.yml instead of site.yml.
+
+We recommend a c3.xlarge ubuntu instance. 
 
 Ansible can also provision new instances, however we haven't used this feature yet.
 

@@ -98,30 +98,27 @@
       creates: "{{ annie_prefix }}/.geonames.imported"
     sudo: yes
 
-  - name: Check that classifier has been trained
-    stat: path="{{ grits_api_prefix }}/classifier.p"
-    register: classifier_data
+  - name: Copy ontologies pickle
+    copy: src=roles/grits-api/files/ontologies-0.1.3.p dest={{ grits_api_prefix }}/ontologies-0.1.3.p
+
+  - name: Copy keyword array pickle
+    copy: src=roles/grits-api/files/keyword_array.p dest={{ grits_api_prefix }}/keyword_array.p
+
+  - name: Copy dict vectorizer pickle
+    copy: src=roles/grits-api/files/dict_vectorizer.p dest={{ grits_api_prefix }}/dict_vectorizer.p
+
+  - name: Copy classifier pickle
+    copy: src=roles/grits-api/files/classifier.p dest={{ grits_api_prefix }}/classifier.p
 
   - name: Restart tomcat7 to reclaim memory
     ignore_errors: yes
     service: name=tomcat7 state=restarted enabled=yes
     sudo: yes
-    when: not classifier_data.stat.exists
 
   - name: Restart grits api group to reclaim memory
     ignore_errors: yes
     supervisorctl: name="gritsapigroup:" state=restarted
     sudo: yes
-    when: not classifier_data.stat.exists
-
-  - name: Training
-    shell: "{{ grits_env }}/bin/python train.py"
-    args:
-      chdir: "{{ grits_api_prefix }}"
-      creates: "{{ grits_api_prefix }}/classifier.p"
-    tags:
-      - train
-    notify: restart grits api group
 
   - name: Load mongo keywords
     shell: "{{ grits_env }}/bin/python mongo_import_keywords.py"
