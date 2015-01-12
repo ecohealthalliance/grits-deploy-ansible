@@ -10,6 +10,8 @@ all dependencies.
 
 Before using this repository, use [ansible-vault](http://docs.ansible.com/playbooks_vault.html) to create a secure.yml file with sensitive passwords and other information. Copy the format in secure.yml.sample.
 
+Also, change the domains in group_vars/dev and group_vars/prod to the domains you will deploy to. 
+
 ### Deploying to a virtual machine
 
 Included in this repository is everything you need to deploy the entire

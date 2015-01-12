@@ -48,18 +48,28 @@
 
   - name: Install python requirements
     pip: requirements=/opt/girder/requirements.txt virtualenv=/opt/girder/env
+    sudo: yes
+    sudo_user: "{{ grits_user }}"
 
   - name: Install grits plugin requirements
     pip: requirements=/opt/girder/plugins/gritsSearch/requirements.txt virtualenv=/opt/girder/env
+    sudo: yes
+    sudo_user: "{{ grits_user }}"
 
   - name: Install celery plugin requirements
     pip: requirements=/opt/girder/plugins/celery_jobs/requirements.txt virtualenv=/opt/girder/env
+    sudo: yes
+    sudo_user: "{{ grits_user }}"
 
   - name: Install geospatial plugin requirements
     pip: requirements=/opt/girder/plugins/geospatial/requirements.txt virtualenv=/opt/girder/env
+    sudo: yes
+    sudo_user: "{{ grits_user }}"
 
   - name: Install metadata_extractor plugin requirements
     pip: requirements=/opt/girder/plugins/metadata_extractor/requirements.txt virtualenv=/opt/girder/env
+    sudo: yes
+    sudo_user: "{{ grits_user }}"
 
   - name: Install grunt globally
     npm: name={{ item }} global=yes
@@ -102,12 +112,31 @@
   # handlers run at the end
   - include: ../../common/handlers/main.yml
 
+  - name: Create admin grits user
+    shell: "curl --data \"login=grits&firstName=grits&lastName=grits&password={{girder_admin_password}}&email={{girder_admin_email}}\" http://{{girder_socket_host}}:{{girder_socket_port}}/api/v1/user"
+
+  - name: Log in as grits
+    shell: "curl -u grits:{{girder_admin_password}} http://{{girder_socket_host}}:{{girder_socket_port}}/api/v1/user/authentication"
+    register: token
+
+  - name: Enable grits plugin
+    shell: "curl -X PUT --data 'plugins={{girder_plugins|to_json}}&token={{(token.stdout|from_json).authToken.token}}' http://{{girder_socket_host}}:{{girder_socket_port}}/api/v1/system/plugins"
+    register: plugin
+    notify: reload supervisor
+    with_items:
+      - girder
+
   - name: Copy healthmap import python script
     template:
       src: healthMapGirder.py
       dest: "{{ cron_prefix }}/healthMapGirder.py"
       group: "{{ grits_group }}"
       owner: "{{ grits_user }}"
+
+  - name: Run full import once
+    shell: ". $HOME/grits_config && PYTHONPATH=/opt/girder:$PYTHONPATH /opt/girder/env/bin/python {{ cron_prefix }}/healthMapGirder.py --full"
+    sudo: yes
+    sudo_user: grits
 
   - name: Copy cron scripts
     template:

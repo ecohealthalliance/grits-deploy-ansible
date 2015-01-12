@@ -7,6 +7,10 @@ girder_mount_path: /gritsdb
 girder_socket_host: 127.0.0.1
 girder_socket_port: 9999
 girder_deployment_mode: production
+girder_admin_email: "{{ girder_admin_email }}"
+girder_admin_password: "{{ girder_admin_password }}"
+girder_user_info: "{\"login\": \"grits\", \"password\": \"{{ girder_admin_password }}\", \"firstName\": \"grits\", \"lastName\": \"grits\", \"email\": \"{{ girder_admin_email }}\"}"
+girder_plugins: ["gritsSearch"]
 
 grits_api_prefix: "/home/{{ grits_user }}/grits-api"
 grits_env: "/home/{{ grits_user }}/grits_env"
@@ -104,8 +108,8 @@ celery_batch_workers: 2
 # The versions can be branch refs to make development easier, but
 # change them to specific commits before merging into master.
 diagnostic_dashboard_git_version: "f43e5bb760b0bba320d0411c66974bb3395e501b"
-grits_api_git_version: "15c477215d8c4952f5af40f7e7bade8935254a85"
-annie_git_version: "14716b60b4a993ab7115177107ccc4567f09192e"
-jvm_nlp_git_version: "9f199d10e4fa0318f22d422e3e5e358eb1cad976"
+grits_api_git_version: "e03dadc950bf485ba9b3ec232b6a638929c10ea7"
+annie_git_version: "56ab098718a5e1151ab00c3eca215578aa92bb7f"
+jvm_nlp_git_version: "e1fc5960744a38503f32494de2dad816234583b1"
 girder_git_version: "8165a805249728bca59bc557a9ec72db9c21d748"
 gritsSearch_git_version: "cc488ca064652187d8dd0425061ff8bec06d5e88"
