@@ -105,7 +105,7 @@ celery_batch_workers: 2
 # change them to specific commits before merging into master.
 diagnostic_dashboard_git_version: "integration"
 grits_api_git_version: "integration"
-annie_git_version: "master"
-jvm_nlp_git_version: "master"
+annie_git_version: "56ab098718a5e1151ab00c3eca215578aa92bb7f"
+jvm_nlp_git_version: "e1fc5960744a38503f32494de2dad816234583b1"
 girder_git_version: "8165a805249728bca59bc557a9ec72db9c21d748"
 gritsSearch_git_version: "cc488ca064652187d8dd0425061ff8bec06d5e88"
