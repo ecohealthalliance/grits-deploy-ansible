@@ -4,3 +4,6 @@
 [submodule "roles/ansible-elasticsearch"]
 	path = roles/ansible-elasticsearch
 	url = https://github.com/Traackr/ansible-elasticsearch.git
+[submodule "roles/ansible-swapfile"]
+	path = roles/ansible-swapfile
+	url = https://github.com/azavea/ansible-swapfile
