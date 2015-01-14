@@ -5,7 +5,7 @@
   - name: Creating file at root to identify server type
     file: path=prod state=touch
   roles:
-    - { role: ansible-swapfile, swapfile_size: 8GB, swapfile_path: "/swapfile", sudo: yes, sudo_user: "root", tags: ["swapfile"] }
+    - { role: ansible-swapfile, swapfile_size: 16GB, swapfile_path: "/swapfile", sudo: yes, sudo_user: "root", tags: ["swapfile"] }
     - common
     - postfix
     - apache

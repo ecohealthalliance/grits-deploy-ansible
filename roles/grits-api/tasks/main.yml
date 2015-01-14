@@ -152,5 +152,6 @@
   # "All problems in computer science can be solved by another level of indirection"
   # -David Wheeler
   - name: Creating current_classifier symlink
-    file: src=/home/grits/current_classifier dest={{ grits_api_prefix }}/current_classifier state=link
+    file: src=/home/grits/current_classifier dest={{ grits_api_prefix }}/current_classifier state=link force=yes
     sudo: true
+    
