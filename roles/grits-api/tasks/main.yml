@@ -145,3 +145,12 @@
     command: mongo localhost:27017/girder /tmp/cleanup_girder.js
     tags: [cleanup_girder]
     when: cleanup_girder is defined
+
+  # Create a symlink to the current_classifier symlink in the home directory
+  # because the symlink in the grits-api directory gets wiped out when the
+  # grits-api repository is updated.
+  # "All problems in computer science can be solved by another level of indirection"
+  # -David Wheeler
+  - name: Creating current_classifier symlink
+    file: src=/home/grits/current_classifier dest={{ grits_api_prefix }}/current_classifier state=link
+    sudo: true

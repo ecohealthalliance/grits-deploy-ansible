@@ -29,7 +29,7 @@
     sudo: yes
   
   - name: Setting current classifier to the one we just trained
-    file: src={{classifier_path}} dest={{ grits_api_prefix }}/current_classifier state=link
+    file: src={{classifier_path}} dest=/home/grits/current_classifier state=link
     
   - name: Loading mongo keywords
     shell: "{{ grits_env }}/bin/python mongo_import_keywords.py"
