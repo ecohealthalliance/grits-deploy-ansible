@@ -1,6 +1,6 @@
 ---
-
-- hosts: dev
+# Use `--extra-vars hosts=prod` to set the host
+- hosts: "{{hosts}}"
   pre_tasks:
   - apt: name=expect-dev state=present
   
