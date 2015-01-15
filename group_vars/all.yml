@@ -9,7 +9,7 @@ girder_socket_port: 9999
 girder_deployment_mode: production
 girder_admin_email: "{{ girder_admin_email }}"
 girder_admin_password: "{{ girder_admin_password }}"
-girder_plugins: ["gritsSearch"]
+girder_plugins: ["gritsSearch", "grid-search"]
 
 grits_api_prefix: "/home/{{ grits_user }}/grits-api"
 grits_env: "/home/{{ grits_user }}/grits_env"
@@ -112,3 +112,4 @@ annie_git_version: "56ab098718a5e1151ab00c3eca215578aa92bb7f"
 jvm_nlp_git_version: "e1fc5960744a38503f32494de2dad816234583b1"
 girder_git_version: "8165a805249728bca59bc557a9ec72db9c21d748"
 gritsSearch_git_version: "cc488ca064652187d8dd0425061ff8bec06d5e88"
+grid_search_git_version: "124fc5077e9e16e7a702298e52b7aa85a7898912"

@@ -42,6 +42,20 @@
       chdir: /opt/girder/plugins/gritsSearch
     when: gritsSearch.changed
 
+  - name: Sync grid-search code
+    git: 
+      repo: git@github.com:ecohealthalliance/grid-search.git
+      dest: /opt/girder/plugins/grid-search
+      accept_hostkey: yes
+      version: "{{grid_search_git_version}}"
+    register: gridSearch
+
+  - name: Remove untracked files in grid-search directory
+    shell: "git clean -dfx"
+    args:
+      chdir: /opt/girder/plugins/grid-search
+    when: gridSearch.changed
+
   - name: Set girder directory ownership to grits user
     shell: "chown -R {{ grits_user }} /opt/girder"
     #when: gritsSearch.changed
@@ -53,6 +67,11 @@
 
   - name: Install grits plugin requirements
     pip: requirements=/opt/girder/plugins/gritsSearch/requirements.txt virtualenv=/opt/girder/env
+    sudo: yes
+    sudo_user: "{{ grits_user }}"
+
+  - name: Install grid plugin requirements
+    pip: requirements=/opt/girder/plugins/grid-search/requirements.txt virtualenv=/opt/girder/env
     sudo: yes
     sudo_user: "{{ grits_user }}"
 
@@ -119,7 +138,7 @@
     shell: "curl -u grits:{{girder_admin_password}} http://{{girder_socket_host}}:{{girder_socket_port}}/api/v1/user/authentication"
     register: token
 
-  - name: Enable grits plugin
+  - name: Enable plugins
     shell: "curl -X PUT --data 'plugins={{girder_plugins|to_json}}&token={{(token.stdout|from_json).authToken.token}}' http://{{girder_socket_host}}:{{girder_socket_port}}/api/v1/system/plugins"
     register: plugin
     notify: reload supervisor
