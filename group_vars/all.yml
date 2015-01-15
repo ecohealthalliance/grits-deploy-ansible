@@ -103,8 +103,8 @@ celery_batch_workers: 2
 
 # The versions can be branch refs to make development easier, but
 # change them to specific commits before merging into master.
-diagnostic_dashboard_git_version: "a3c3dc80ad2fee1d381b30809cb0f0d8e28f561b"
-grits_api_git_version: "18e7a8167bec41ff1254fe73c0ecd1e01b17e1d8"
+diagnostic_dashboard_git_version: "ba7dc677866d2f6b8910e3c832ec011dcfb2ca99"
+grits_api_git_version: "54c361b064e9e39300cc650c1c0fc8d42ff21035"
 annie_git_version: "56ab098718a5e1151ab00c3eca215578aa92bb7f"
 jvm_nlp_git_version: "e1fc5960744a38503f32494de2dad816234583b1"
 girder_git_version: "8165a805249728bca59bc557a9ec72db9c21d748"
