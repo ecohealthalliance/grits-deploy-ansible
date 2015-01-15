@@ -5,12 +5,15 @@
 
 - name: Create aws crendentials directory
   file: path=/home/{{ grits_user }}/.aws state=directory owner={{ grits_user }} group={{ grits_group }}
+  when: girder_data_access_key is defined
 
 - name: Create aws credentials
   template: src=config.j2 dest=/home/{{ grits_user }}/.aws/config owner={{ grits_user }} group={{ grits_group }}
+  when: girder_data_access_key is defined
 
 - name: Create database directory
   file: path=/home/{{ grits_user }}/dump state=directory owner={{ grits_user }} group={{ grits_group }}
+  when: girder_data_access_key is defined
 
 - name: Update girder data from s3
   command: aws s3 sync --recursive s3://girder-data/{{ s3_mongo_import_directory }} /home/{{ grits_user }}/dump
@@ -19,6 +22,7 @@
   sudo: yes
   sudo_user: "{{ grits_user }}"
   register: s3_data_dumped
+  when: girder_data_access_key is defined
   
 - name: Import girder data from dump
   command: mongorestore /home/{{ grits_user }}/dump --drop
