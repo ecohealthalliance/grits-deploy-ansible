@@ -99,7 +99,9 @@ def setupGirder():
     return models
 
 
-def main(*args):
+def main(start=datetime.datetime.now() - datetime.timedelta(1),
+         end=datetime.datetime.now()):
+    """Defaults to loading the most recent 1 day of articles"""
 
     # open config file
     config = loadConfig()
@@ -131,17 +133,6 @@ def main(*args):
         folder = response[0]
     else:
         raise Exception("Could not find healthmap folder.")
-
-    # get the date range to download, defaults to the last 1 day
-    if len(args) >= 1:
-        # arg 1 start day
-        start = dateutil.parser.parse(args[0])
-    else:
-        start = datetime.datetime.now() - datetime.timedelta(1)
-    if len(args) >= 2:
-        end = dateutil.parser.parse(args[1])
-    else:
-        end = start + datetime.timedelta(1)
 
     nAdded = 0
     nUpdated = 0
@@ -210,25 +201,23 @@ def main(*args):
     print 'Updated %i old items' % nUpdated
 
 if __name__ == '__main__':
-    import sys
+
     now = datetime.datetime.now()
-    fmt = '%Y-%m-%d'
+
     if len(sys.argv) < 2 or sys.argv[1] == '--day':
-        yesterday = now - datetime.timedelta(1)
-        args = [yesterday, now]
-        args = [a.strftime(fmt) for a in args]
+        start = now - datetime.timedelta(1)
+        end = now
     elif sys.argv[1] == '--twoday':
-        yesterday = now - datetime.timedelta(2)
-        args = [yesterday, now]
-        args = [a.strftime(fmt) for a in args]
+        start = now - datetime.timedelta(2)
+        end = now
     elif sys.argv[1] == '--full':
-        start = datetime.datetime(now.year - 2, now.month, now.day)
-        args = [start, now]
-        args = [a.strftime(fmt) for a in args]
+        start = datetime.datetime(now.year - 2, now.month, now.day + 1)
+        end = now
     elif sys.argv[1] == '--month':
         start = now - datetime.timedelta(days=31)
-        args = [start, now]
-        args = [a.strftime(fmt) for a in args]
+        end = now
     else:
-        args = sys.argv[1:]
-    main(*args)
+        start = dateutil.parser.parse(sys.argv[1])
+        end = dateutil.parser.parse(sys.argv[2])
+
+    main(start=start, end=end)
