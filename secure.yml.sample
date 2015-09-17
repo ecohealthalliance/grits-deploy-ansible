@@ -37,3 +37,7 @@ apache_key: |
   -----BEGIN PRIVATE KEY-----
   ...
   -----END PRIVATE KEY-----
+
+# The query parameter the BSVE provides to the diagnostic dashboard
+# to allow users to submit articles.
+bsve_access_key: ...
