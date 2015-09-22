@@ -23,7 +23,7 @@
     register: girder
   
   - name: Remove untracked files in girder directory
-    shell: "git clean -f"
+    shell: "git clean -dfx"
     args:
       chdir: /opt/girder
     when: girder.changed
@@ -37,7 +37,7 @@
     register: gritsSearch
 
   - name: Remove untracked files in gritsSearch directory
-    shell: "git clean -f"
+    shell: "git clean -dfx"
     args:
       chdir: /opt/girder/plugins/gritsSearch
     when: gritsSearch.changed

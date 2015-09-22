@@ -1,10 +1,11 @@
 ---
 
-- hosts: dev
+- hosts: grits
   pre_tasks:
   - name: Creating file at root to identify server type
     file: path=dev state=touch
   roles:
+    - { role: ansible-swapfile, swapfile_size: 8GB, swapfile_path: "/swapfile", sudo: yes, sudo_user: "root", tags: ["swapfile"] }
     - common
     - postfix
     - apache

@@ -1,0 +1,49 @@
+---
+# Use `--extra-vars hosts=prod` to set the host
+- hosts: "{{hosts}}"
+  pre_tasks:
+  - apt: name=expect-dev state=present
+  
+  # Classifiers are not kept in the grits-api folder so the repo can be cleaned
+  # without wiping them out.
+  - set_fact: classifier_path="/home/grits/classifiers/{{ansible_date_time.epoch}}"
+  
+  - debug: msg="To see the training results run this. tail -f {{classifier_path}}/train.log"
+  
+  - file: path={{classifier_path}} state=directory
+
+  - name: Stop grits api group to reclaim memory
+    ignore_errors: yes
+    supervisorctl: name="gritsapigroup:" state=stopped
+    sudo: yes
+
+  - name: Stop tomcat7 to reclaim memory
+    ignore_errors: yes
+    service: name=tomcat7 state=stopped enabled=yes
+    sudo: yes
+
+  - name: Training classifier
+    shell: "unbuffer {{ grits_env }}/bin/python train.py -pickle_dir {{classifier_path}} | tee {{classifier_path}}/train.log"
+    args:
+      chdir: "{{ grits_api_prefix }}"
+    sudo: yes
+  
+  - name: Setting current classifier to the one we just trained
+    file: src={{classifier_path}} dest=/home/grits/current_classifier state=link
+    
+  - name: Loading mongo keywords
+    shell: "{{ grits_env }}/bin/python mongo_import_keywords.py"
+    args:
+      chdir: "{{ grits_api_prefix }}"
+
+  - name: Start tomcat
+    service: name=tomcat7 state=started enabled=yes
+    sudo: yes
+  
+  - name: Start grits api group
+    supervisorctl: name="gritsapigroup:" state=started
+    sudo: yes
+
+  vars_files:
+    - secure.yml
+  sudo: yes

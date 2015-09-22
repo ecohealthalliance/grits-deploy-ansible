@@ -1,6 +1,13 @@
 ---
 
   - name: restart grits api group
-    supervisorctl: name="gritsapigroup:" state=restarted
+    supervisorctl: name="gritsapigroup:{{item}}" state=restarted
     sudo: yes
     sudo_user: root
+    ignore_errors: yes
+    with_items:
+        - celery_diagnose
+        - celery_priority
+        - celery_process
+        - gritsapi
+        

@@ -17,6 +17,8 @@
   ProxyPassReverse {{ girder_mount_path }}/ http://localhost:{{ girder_socket_port }}/
   ProxyPass /api/v1/public_diagnose http://localhost:5000/public_diagnose
   ProxyPassReverse /api/v1/public_diagnose http://localhost:5000/public_diagnose
+  ProxyPass /api/v1/bsve/ http://localhost:5000/bsve/
+  ProxyPassReverse /api/v1/bsve/ http://localhost:5000/bsve/
   ProxyPass /api/v1 http://localhost:444/api/v1
   ProxyPassReverse /api/v1 http://localhost:444/api/v1
   ProxyPass / http://localhost:{{ meteor_port }}/

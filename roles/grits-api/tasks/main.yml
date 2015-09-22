@@ -20,9 +20,10 @@
       accept_hostkey: yes
       version: "{{grits_api_git_version}}"
     register: grits_api
+    notify: restart grits api group
     
   - name: Remove untracked files in grits-api directory
-    shell: "git clean -f"
+    shell: "git clean -dfx"
     args:
       chdir: "{{ grits_api_prefix }}"
     when: grits_api.changed
@@ -55,7 +56,6 @@
       - punkt
     sudo: yes
     sudo_user: "{{ grits_user }}"
-    notify: restart grits api group
 
   - name: Sync annie code
     git: 
@@ -66,7 +66,7 @@
     register: annie
   
   - name: Remove untracked files in annie directory
-    shell: "git clean -f"
+    shell: "git clean -dfx"
     args:
       chdir: "{{ annie_prefix }}"
     when: annie.changed
@@ -98,36 +98,6 @@
       creates: "{{ annie_prefix }}/.geonames.imported"
     sudo: yes
 
-  - name: Check that classifier has been trained
-    stat: path="{{ grits_api_prefix }}/classifier.p"
-    register: classifier_data
-
-  - name: Restart tomcat7 to reclaim memory
-    ignore_errors: yes
-    service: name=tomcat7 state=restarted enabled=yes
-    sudo: yes
-    when: not classifier_data.stat.exists
-
-  - name: Restart grits api group to reclaim memory
-    ignore_errors: yes
-    supervisorctl: name="gritsapigroup:" state=restarted
-    sudo: yes
-    when: not classifier_data.stat.exists
-
-  - name: Training
-    shell: "{{ grits_env }}/bin/python train.py"
-    args:
-      chdir: "{{ grits_api_prefix }}"
-      creates: "{{ grits_api_prefix }}/classifier.p"
-    tags:
-      - train
-    notify: restart grits api group
-
-  - name: Load mongo keywords
-    shell: "{{ grits_env }}/bin/python mongo_import_keywords.py"
-    args:
-      chdir: "{{ grits_api_prefix }}"
-
   - name: Install supervisord configs
     template: src={{ item }}.conf.j2 dest=/etc/supervisor/conf.d/{{ item }}.conf
     notify: reload supervisor
@@ -150,22 +120,35 @@
       owner: "{{ grits_user }}"
       mode: 0755
 
-  - name: Install healthmap diagnosis cron job
-    cron:
-      name: "Diagnose healthmap articles"
-      user: "{{ grits_user }}"
-      job: "{{ cron_prefix }}/diagnose_girder_HM_articles"
-      day: 26
-      hour: 3
-      minute: 0
-    when: run_cron_jobs
-
   - name: Creating cron job that restarts processes in order to free memory
     sudo: yes
     cron:
       name: "Restart processes"
       user: "root"
-      job: "service tomcat7 restart ; supervisorctl restart gritsapigroup:celery_diagnose"
+      # Order matters here, we don't the diagnosis code running while tomcat is offline.
+      job: "supervisorctl stop gritsapigroup: ; service tomcat7 restart ; supervisorctl start gritsapigroup:"
       hour: 3
       minute: 0
     when: run_cron_jobs
+
+  - name: Copy girder cleanup script
+    template:
+      src: cleanup_girder.js
+      dest: /tmp/
+    tags: [cleanup_girder]
+    when: cleanup_girder is defined
+  
+  - name: Cleanup girder DB
+    command: mongo localhost:27017/girder /tmp/cleanup_girder.js
+    tags: [cleanup_girder]
+    when: cleanup_girder is defined
+
+  # Create a symlink to the current_classifier symlink in the home directory
+  # because the symlink in the grits-api directory gets wiped out when the
+  # grits-api repository is updated.
+  # "All problems in computer science can be solved by another level of indirection"
+  # -David Wheeler
+  - name: Creating current_classifier symlink
+    file: src=/home/grits/current_classifier dest={{ grits_api_prefix }}/current_classifier state=link force=yes
+    sudo: true
+    
