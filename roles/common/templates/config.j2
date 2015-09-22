@@ -1,10 +1,10 @@
 #!/bin/bash
 
 export HEALTHMAP_APIKEY="{{ healthmap_apikey }}"
-export CLASSIFIER_DATA_ACCESS_KEY="{{ classifier_data_access_key }}"
-export CLASSIFIER_DATA_SECRET_KEY="{{ classifier_data_secret_key }}"
-export GIRDER_DATA_ACCESS_KEY="{{ girder_data_access_key }}"
-export GIRDER_DATA_SECRET_KEY="{{ girder_data_secret_key }}"
+export CLASSIFIER_DATA_ACCESS_KEY="{{ classifier_data_access_key | default("") }}"
+export CLASSIFIER_DATA_SECRET_KEY="{{ classifier_data_secret_key | default("") }}"
+export GIRDER_DATA_ACCESS_KEY="{{ girder_data_access_key | default("") }}"
+export GIRDER_DATA_SECRET_KEY="{{ girder_data_secret_key | default("") }}"
 
 export MONGO_URL="{{ mongo_url }}"
 export CELERY_BROKER="{{ celery_broker }}"
@@ -18,8 +18,8 @@ export GIRDER_ADMIN_EMAIL="{{ girder_admin_email }}"
 export S3_MONGO_IMPORT_DIRECTORY="{{ s3_mongo_import_directory }}"
 export S3_DUMP_DIRECTORY="{{ s3_dump_directory }}"
 
-export BING_TRANSLATE_ID="{{ bing_translate_id }}"
-export BING_TRANSLATE_SECRET="{{ bing_translate_secret }}"
+export BING_TRANSLATE_ID="{{ bing_translate_id }} | default("")"
+export BING_TRANSLATE_SECRET="{{ bing_translate_secret | default("") }}"
 
 export METEOR_DB_NAME="{{ meteor_db_name }}"
 export METEOR_MONGO="{{ meteor_mongo }}"
