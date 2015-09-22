@@ -114,22 +114,13 @@
       owner: "{{ grits_user }}"
       mode: 0755
 
-  - name: Install healthmap diagnosis cron job
-    cron:
-      name: "Diagnose healthmap articles"
-      user: "{{ grits_user }}"
-      job: "{{ cron_prefix }}/diagnose_girder_HM_articles"
-      day: 26
-      hour: 3
-      minute: 0
-    when: run_cron_jobs
-
   - name: Creating cron job that restarts processes in order to free memory
     sudo: yes
     cron:
       name: "Restart processes"
       user: "root"
-      job: "service tomcat7 restart ; supervisorctl restart gritsapigroup:celery_diagnose"
+      # Order matters here, we don't the diagnosis code running while tomcat is offline.
+      job: "supervisorctl stop gritsapigroup: ; service tomcat7 restart ; supervisorctl start gritsapigroup:"
       hour: 3
       minute: 0
     when: run_cron_jobs
