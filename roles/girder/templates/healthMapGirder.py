@@ -641,7 +641,7 @@ if __name__ == '__main__':
         args = [yesterday, now]
         args = [a.strftime(fmt) for a in args]
     elif sys.argv[1] == '--full':
-        start = datetime.datetime(now.year - 2, now.month, now.day)
+        start = datetime.datetime(now.year - 2, now.month, now.day + 1)
         args = [start, now]
         args = [a.strftime(fmt) for a in args]
     elif sys.argv[1] == '--month':
