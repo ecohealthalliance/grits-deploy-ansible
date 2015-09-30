@@ -20,7 +20,7 @@
   when: girder_data_access_key is defined
 
 - name: Update girder data from s3
-  command: aws s3 sync --recursive s3://girder-data/{{ s3_mongo_import_directory }} /home/{{ grits_user }}/dump
+  command: aws s3 sync s3://girder-data/{{ s3_mongo_import_directory }} /home/{{ grits_user }}/dump
   args:
     creates: /home/{{ grits_user }}/dump/girder
   sudo: yes
