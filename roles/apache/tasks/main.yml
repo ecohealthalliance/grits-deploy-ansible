@@ -2,6 +2,7 @@
 
   - name: Install apache
     apt: name=apache2
+    tags: apache
 
   - name: Enable apache modules
     apache2_module: name={{ item }}
@@ -10,25 +11,34 @@
       - proxy_http
       - rewrite
       - ssl
+      - proxy_wstunnel
+    tags: apache
 
   - name: Create ssl directory
     file: path=/etc/apache2/ssl state=directory
+    tags: apache
 
   - name: Install ssl certificate
     template: src=apache.crt.j2 dest=/etc/apache2/ssl/apache.crt
+    tags: apache
   
   - name: Install ssl private key
     template: src=apache.key.j2 dest=/etc/apache2/ssl/apache.key
+    tags: apache
 
   - name: Configure apache proxy
     template: src=proxy.conf.j2 dest=/etc/apache2/conf-available/proxy.conf
+    tags: apache
   
   - name: Configure apache ports
     template: src=ports.conf.j2 dest=/etc/apache2/ports.conf
+    tags: apache
   
   - name: Enable apache service
     service: name=apache2 state=started enabled=yes
+    tags: apache
 
   - name: Enable proxy configuration
     command: a2enconf proxy
     notify: restart apache2
+    tags: apache
