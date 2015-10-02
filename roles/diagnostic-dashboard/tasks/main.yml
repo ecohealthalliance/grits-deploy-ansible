@@ -79,6 +79,10 @@
     template: src=parse_email.py dest=/etc/postfix/parse_email.py group={{ grits_group }} owner={{ grits_user }}
     sudo: yes
 
+  - name: Ensure mailname exists
+    shell: cat /etc/mailname || cat /etc/hostname > /etc/mailname
+    sudo: yes
+
   - name: Run postmap on transport
     command: postmap /etc/postfix/transport
     sudo: yes

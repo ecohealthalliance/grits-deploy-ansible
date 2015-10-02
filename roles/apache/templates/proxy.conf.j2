@@ -4,15 +4,21 @@
   RewriteCond %{HTTPS} off
   RewriteRule ^(.*) https://%{HTTP_HOST}%{REQUEST_URI}
 </VirtualHost>
+
 <VirtualHost *:443>
   ServerName {{ apache_url }}
   SSLEngine on
   SSLCertificateFile /etc/apache2/ssl/apache.crt
   SSLCertificateKeyFile /etc/apache2/ssl/apache.key
   ProxyPreserveHost On
+
   RewriteEngine on
   RewriteRule ^{{ girder_mount_path }}$ {{ girder_mount_path }}/ [R]
   RewriteRule ^/internal.* [F]
+  RewriteCond %{HTTP:UPGRADE} ^WebSocket$ [NC]
+  RewriteCond %{HTTP:CONNECTION} ^Upgrade$ [NC]
+  RewriteRule .* ws://localhost:{{ meteor_port }}%{REQUEST_URI} [P]
+
   ProxyPass {{ girder_mount_path }}/ http://localhost:{{ girder_socket_port }}/
   ProxyPassReverse {{ girder_mount_path }}/ http://localhost:{{ girder_socket_port }}/
   ProxyPass /api/v1/public_diagnose http://localhost:5000/public_diagnose
@@ -24,6 +30,7 @@
   ProxyPass / http://localhost:{{ meteor_port }}/
   ProxyPassReverse / http://localhost:{{ meteor_port }}/
 </VirtualHost>
+
 <VirtualHost *:444>
   ServerName {{ apache_url }}
   # Configures static file server for API docs
