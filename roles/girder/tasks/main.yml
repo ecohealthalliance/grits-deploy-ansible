@@ -29,11 +29,12 @@
     when: girder.changed
 
   - name: Sync gritsSearch code
-    git: 
+    git:
       repo: git@github.com:ecohealthalliance/gritsSearch.git
       dest: /opt/girder/plugins/gritsSearch
       accept_hostkey: yes
-      version: master
+      force: yes
+      key_file: /root/.ssh/id_rsa
     register: gritsSearch
 
   - name: Remove untracked files in gritsSearch directory
