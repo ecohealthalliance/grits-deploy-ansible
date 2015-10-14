@@ -101,7 +101,7 @@ cron_logs: /home/{{ grits_user }}/cron/logs
 
 flower_port: 5555
 
-celery_priority_workers: 1
+celery_priority_workers: 5
 celery_batch_workers: 2
 
 diagnostic_dashboard_git_version: "integration"
