@@ -37,6 +37,8 @@
   - name: Install numpy
     pip: name=numpy virtualenv={{ grits_env }}
 
+  - apt: name=libjpeg-dev state=present
+
   - name: Install requirements
     pip: requirements={{ grits_api_prefix }}/requirements.txt virtualenv={{ grits_env }}
 
