@@ -104,7 +104,7 @@ flower_port: 5555
 celery_priority_workers: 5
 celery_batch_workers: 2
 
-diagnostic_dashboard_git_version: "integration"
+diagnostic_dashboard_git_version: "master"
 grits_api_git_version: "master"
 annie_git_version: "master"
 jvm_nlp_git_version: "master"
