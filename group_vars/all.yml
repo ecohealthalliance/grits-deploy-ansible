@@ -91,7 +91,7 @@ mongo_host: localhost
 mongo_port: 27017
 meteor_mongo: "mongodb://{{mongo_host}}:{{mongo_port}}/{{ meteor_db_name }}"
 mail_url: "smtp://localhost"
-grid_url: "http://grid.ecohealth.io"
+grid_url: "https://eidr.ecohealthalliance.org"
 
 # where to put cron scripts
 cron_prefix: /home/{{ grits_user }}/cron
