@@ -1,0 +1,8 @@
+full-grits-api:
+  image: full-grits-api
+  container_name: full-grits-api
+  ports:
+    - "2222:22"
+  restart: always
+  environment:
+    - placeholder=true
