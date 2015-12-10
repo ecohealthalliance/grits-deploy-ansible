@@ -16,10 +16,18 @@
   apt_repository: repo="deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen" state=present
   tags: mongodb
 
+- shell: echo "export LC_ALL=C" >> /etc/bash.bashrc
+  when: docker
+  tags: mongodb
+
 - name: Install the mongodb package
   apt: name=mongodb-org state=installed
   tags: mongodb
 
 - name: Start the mongodb service for Ubuntu variants
   service: name=mongod state=started enabled=yes
+  tags: mongodb
+
+- template: src=mongod.conf.j2 dest=/etc/supervisor/conf.d/mongod.conf
+  when: docker
   tags: mongodb

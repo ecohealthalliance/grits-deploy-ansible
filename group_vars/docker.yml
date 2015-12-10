@@ -1,1 +1,2 @@
 ansible_ec2_public_ipv4: 127.0.0.1
+docker: true
