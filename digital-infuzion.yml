@@ -1,0 +1,18 @@
+---
+
+- hosts: grits
+  pre_tasks:
+  - name: Creating file at root to identify server type
+    file: path=dev state=touch
+  roles:
+    - common
+    - apache
+    - mongodb
+    - node
+    - { role: girder, tags: ["girder"] }
+    - { role: grits-api, tags: ["gritsapi"] }
+    - { role: jvm-nlp, tags: ["jvmnlp"] }
+    - { role: diagnostic-dashboard, tags: ["dashboard"] }
+  vars_files:
+    - secure.yml
+  sudo: yes
