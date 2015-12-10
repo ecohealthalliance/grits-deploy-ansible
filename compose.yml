@@ -5,4 +5,4 @@ full-grits-api:
     - "2222:22"
   restart: always
   environment:
-    - LC_ALL=C
+    - placeholder=true

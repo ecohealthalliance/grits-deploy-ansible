@@ -6,15 +6,20 @@
   - "{{ mongod_conflicts }}"
   notify:
     - Purge mongo dependencies
+  tags: mongodb
 
 - name: Install the apt key for ubuntu
   apt_key: id=7F0CEB10 url="http://docs.mongodb.org/10gen-gpg-key.asc"
+  tags: mongodb
 
 - name: Install the repository for Ubuntu mongodb
   apt_repository: repo="deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen" state=present
+  tags: mongodb
 
 - name: Install the mongodb package
   apt: name=mongodb-org state=installed
+  tags: mongodb
 
 - name: Start the mongodb service for Ubuntu variants
   service: name=mongod state=started enabled=yes
+  tags: mongodb
