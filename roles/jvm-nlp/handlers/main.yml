@@ -4,3 +4,4 @@
     service: name=tomcat7 state=restarted
     sudo: yes
     sudo_user: root
+    when: not docker
