@@ -14,9 +14,11 @@ export GIRDER_MOUNT_PATH="{{ girder_mount_path }}"
 export GIRDER_ADMIN_PASSWORD="{{ girder_admin_password }}"
 export GIRDER_ADMIN_EMAIL="{{ girder_admin_email }}"
 
+{% if not docker %}
 # Be careful to use different dump directories for production and development
 export S3_MONGO_IMPORT_DIRECTORY="{{ s3_mongo_import_directory }}"
 export S3_DUMP_DIRECTORY="{{ s3_dump_directory }}"
+{% endif %}
 
 export BING_TRANSLATE_ID="{{ bing_translate_id }} | default("")"
 export BING_TRANSLATE_SECRET="{{ bing_translate_secret | default("") }}"

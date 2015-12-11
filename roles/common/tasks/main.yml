@@ -15,6 +15,7 @@
     - python-pip
     - python-dev
     - supervisor
+    - curl
   tags:
     - mongodb
     - apache
