@@ -1,3 +1,5 @@
 ansible_ec2_public_ipv4: 127.0.0.1
 docker: True
 run_cron_jobs: True
+domain: localhost.localdomain
+public_url: http://{{ domain }}
