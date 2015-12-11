@@ -6,3 +6,5 @@ full-grits-api:
   restart: always
   environment:
     - placeholder=true
+  volumes:
+    - ~/container-mounted-volume:/var/lib/mongo
