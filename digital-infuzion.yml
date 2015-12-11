@@ -15,4 +15,20 @@
     - { role: diagnostic-dashboard, tags: ["dashboard"] }
   vars_files:
     - secure.yml
-  sudo: yes
+  tasks:
+    - name: Install wget package
+      apt: name=wget state=latest
+
+    - name: Download pretrained classifers
+      shell: wget https://s3-us-west-2.amazonaws.com/grits-classifiers/current_classifier.tar.gz
+      args:
+        chdir: /home/grits/grits-api
+        creates: current_classifier.tar.gz
+
+    - name: Untar classifiers tarball
+      shell: tar -zxf current_classifier.tar.gz
+      args:
+        chdir: /home/grits/grits-api
+        creates: /home/grits/grits-api/current_classifier
+
+    - file: path=/home/grits/grits-api/current_classifier mode=0755 recurse=yes state=directory
