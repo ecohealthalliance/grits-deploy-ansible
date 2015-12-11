@@ -16,18 +16,22 @@
 
   - name: Create ssl directory
     file: path=/etc/apache2/ssl state=directory
+    when: not docker
     tags: apache
 
   - name: Install ssl certificate
     template: src=apache.crt.j2 dest=/etc/apache2/ssl/apache.crt
+    when: not docker
     tags: apache
   
   - name: Install ssl private key
     template: src=apache.key.j2 dest=/etc/apache2/ssl/apache.key
+    when: not docker
     tags: apache
 
   - name: Install comodo ca cert
     template: src=comodo.crt.j2 dest=/etc/apache2/ssl/comodo.crt
+    when: not docker
     tags: apache
 
   - name: Configure apache proxy
@@ -40,6 +44,7 @@
 
   - name: Configure apache ssl
     template: src=ssl.conf dest=/etc/apache2/mods-enabled/ssl.conf
+    when: not docker
     tags: apache
   
   - name: Enable apache service
@@ -49,4 +54,8 @@
   - name: Enable proxy configuration
     command: a2enconf proxy
     notify: restart apache2
+    tags: apache
+
+  - template: src=supervisor-apached.conf.j2 dest=/etc/supervisor/conf.d/apached.conf
+    when: docker
     tags: apache

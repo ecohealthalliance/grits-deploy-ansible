@@ -15,7 +15,9 @@
     - python-pip
     - python-dev
     - supervisor
-  tags: mongodb
+  tags:
+    - mongodb
+    - apache
 
 - name: Install global python modules
   pip: name={{item}}
