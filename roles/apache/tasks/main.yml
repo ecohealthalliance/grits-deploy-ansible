@@ -50,6 +50,7 @@
   - name: Enable apache service
     service: name=apache2 state=started enabled=yes
     tags: apache
+    when: not docker
 
   - name: Enable proxy configuration
     command: a2enconf proxy
