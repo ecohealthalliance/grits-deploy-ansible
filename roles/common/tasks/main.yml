@@ -18,6 +18,7 @@
   tags:
     - mongodb
     - apache
+    - jvm-nlp
 
 - name: Install global python modules
   pip: name={{item}}
