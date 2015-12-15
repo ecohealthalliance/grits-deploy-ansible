@@ -11,6 +11,12 @@ sed -i "s/bsve_user_name \= '.*'/bsve_user_name = ''/" /home/grits/grits-api/con
 sed -i "s/bsve_api_key \= '.*'/bsve_api_key = ''/" /home/grits/grits-api/config.py
 sed -i "s/bsve_secret_key \= '.*'/bsve_secret_key = ''/" /home/grits/grits-api/config.py
 
+#Remove CLASSIFIER_DATA access key and secret key from grits/grits_config
+sed -i "s/CLASSIFIER_DATA_ACCESS_KEY\=".*"//" /home/grits/grits_config
+sed -i "s/CLASSIFIER_DATA_SECRET_KEY\=".*"//" /home/grits/grits_config
+
+
+
 
 
 
