@@ -154,3 +154,7 @@
     file: src=/home/grits/current_classifier dest={{ grits_api_prefix }}/current_classifier state=link force=yes
     sudo: true
     
+  - name: Loading mongo keywords used for annotation
+    shell: "{{ grits_env }}/bin/python mongo_import_keywords.py"
+    args:
+      chdir: "{{ grits_api_prefix }}"
