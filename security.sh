@@ -15,15 +15,9 @@ sed -i "s/bsve_secret_key \= '.*'/bsve_secret_key = ''/" /home/grits/grits-api/c
 sed -i "s/CLASSIFIER_DATA_ACCESS_KEY\=".*"//" /home/grits/grits_config
 sed -i "s/CLASSIFIER_DATA_SECRET_KEY\=".*"//" /home/grits/grits_config
 
-
-
-
-
-
-
-
-
-
+#Remove GIRDER_DATA access key and scret key from grits/grits_config
+sed -i "s/GIRDER_DATA_ACCESS_KEY\=".*"//" /home/grits/grits_config
+sed -i "s/GIRDER_DATA_SECRET_KEY\=".*"//" /home/grits/grits_config
 
 #Get rid of SSH server and any keys (Must stay as last task)
 rm -fr /root/.ssh
