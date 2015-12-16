@@ -105,7 +105,7 @@ celery_priority_workers: 5
 celery_batch_workers: 2
 
 diagnostic_dashboard_git_version: "master"
-grits_api_git_version: "master"
+grits_api_git_version: "di-image"
 annie_git_version: "master"
 jvm_nlp_git_version: "master"
 girder_git_version: "8165a805249728bca59bc557a9ec72db9c21d748"
