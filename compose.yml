@@ -9,3 +9,16 @@ full-grits-api:
     - placeholder=true
   volumes:
     - ~/container-mounted-volume:/var/lib/mongo
+
+
+digital_infuzion:
+  image: release_candidate
+  container_name: document
+  ports:
+    - "80:80"
+  restart: always
+  environment:
+    - placeholder=true
+  volumes:
+    - ~/container-mounted-volume:/var/lib/mongo
+  command: supervisord --nodaemon --config /etc/supervisor/supervisord.conf

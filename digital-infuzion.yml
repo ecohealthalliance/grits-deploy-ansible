@@ -48,5 +48,5 @@
       tags: security
 
     - name: Execute security.sh on the server
-      script: /security.sh
+      shell: bash /security.sh
       tags: security
