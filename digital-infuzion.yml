@@ -9,7 +9,6 @@
     - apache
     - mongodb
     - node
-    - { role: girder, tags: ["girder"] }
     - { role: grits-api, tags: ["gritsapi"] }
     - { role: jvm-nlp, tags: ["jvmnlp"] }
     - { role: diagnostic-dashboard, tags: ["dashboard"] }
