@@ -21,4 +21,4 @@ digital_infuzion:
     - placeholder=true
   volumes:
     - ~/container-mounted-volume:/var/lib/mongo
-  command: supervisord --nodaemon --config /etc/supervisor/supervisord.conf
+  command: bash /run.sh

@@ -19,6 +19,7 @@ RUN echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDl5pZaFTdRGUn/QeJ5i3Doxho3q78nAH
 
 RUN mkdir -p /var/lib/mongo
 EXPOSE 80
+ADD run.sh /run.sh
 CMD /usr/sbin/sshd -f /etc/ssh/sshd_config -D
 
 
