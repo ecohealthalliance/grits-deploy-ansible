@@ -21,4 +21,4 @@ digital_infuzion:
     - placeholder=true
   volumes:
     - ~/container-mounted-volume:/var/lib/mongo
-  command: bash /run.sh
+  command: /bin/bash /run.sh

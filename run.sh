@@ -2,6 +2,9 @@
 # Purpose: This shell script will eventually be called in the container running the full grits api
 # The logic in this script is intneded to ensure supervisor and all of its processes run correctly
 
+#Turn on monitor mode so bg/fg works properly in shell script
+set -m
+
 #Fork supervisord to the background for now
 supervisord --nodaemon --config /etc/supervisor/supervisord.conf &
 
