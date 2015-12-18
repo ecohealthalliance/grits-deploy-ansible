@@ -23,5 +23,8 @@ done
 #Start gritsapi services only after mongo is up
 supervisorctl start gritsapigroup:
 
+#Restart the dashboard to make sure it connected properly
+supervisorctl restart dashboard
+
 #Bring supervisor back to the foreground. We need this here for the docker container to run properly
 fg
