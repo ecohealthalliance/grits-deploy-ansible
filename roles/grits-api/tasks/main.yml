@@ -145,6 +145,27 @@
     tags: [cleanup_girder]
     when: cleanup_girder is defined
 
+  - name: Install wget package
+    apt: name=wget state=latest
+    tags: classifiers
+
+  - name: Download pretrained classifers
+    shell: wget https://s3-us-west-2.amazonaws.com/grits-classifiers/current_classifier.tar.gz
+    args:
+      chdir: /home/grits
+      creates: current_classifier.tar.gz
+    tags: classifiers
+
+  - name: Untar classifiers tarball
+    shell: tar -zxf current_classifier.tar.gz
+    args:
+      chdir: /home/grits/grits-api
+      creates: /home/grits/current_classifier
+    tags: classifiers
+
+  - file: path=/home/grits/current_classifier mode=0755 recurse=yes state=directory
+    tags: classifiers
+
   # Create a symlink to the current_classifier symlink in the home directory
   # because the symlink in the grits-api directory gets wiped out when the
   # grits-api repository is updated.

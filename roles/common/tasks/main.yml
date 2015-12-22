@@ -28,6 +28,13 @@
     - awscli
     - virtualenv
 
+- name: Run supervisord in the background fire and forget style
+  command: supervisord --nodaemon --config /etc/supervisor/supervisord.conf
+  # Eventually this process will timeout. The run.sh script need to run to start
+  # a permanent process.
+  async: 6000
+  poll: 0
+
 - name: Create grits group
   user: name={{ grits_group }}
 

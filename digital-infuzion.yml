@@ -15,33 +15,10 @@
   vars_files:
     - secure.yml
   tasks:
-    - name: Install wget package
-      apt: name=wget state=latest
-      tags: classifiers
-
-    - name: Download pretrained classifers
-      shell: wget https://s3-us-west-2.amazonaws.com/grits-classifiers/current_classifier.tar.gz
-      args:
-        chdir: /home/grits/grits-api
-        creates: current_classifier.tar.gz
-      tags: classifiers
-
-    - name: Untar classifiers tarball
-      shell: tar -zxf current_classifier.tar.gz
-      args:
-        chdir: /home/grits/grits-api
-        creates: /home/grits/grits-api/current_classifier
-      tags: classifiers
-
-    - file: path=/home/grits/grits-api/current_classifier mode=0755 recurse=yes state=directory
-      tags: classifiers
-
     #########################################################################
     # Place security related commands in security.sh instead of ansible plays
     # When this last script runs, we lose the ability to SSH in with ansible
     #########################################################################
-
-
     - name: Copy security.sh to server
       template: src=./security.sh dest=/security.sh owner=root group=root mode=0500
       tags: security

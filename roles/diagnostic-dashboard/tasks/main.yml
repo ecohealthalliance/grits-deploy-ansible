@@ -120,4 +120,4 @@
     command: mongo .scripts/autocompleteCollections.js
     args:
       chdir: "{{ diagnostic_dashboard_prefix }}"
-    when: dashboard.changed
+    when: not docker and dashboard.changed

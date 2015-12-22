@@ -5,6 +5,9 @@
 #Turn on monitor mode so bg/fg works properly in shell script
 set -m
 
+#Make sure supervisor is not already running
+pkill supervisord
+
 #Fork supervisord to the background for now
 supervisord --nodaemon --config /etc/supervisor/supervisord.conf &
 
