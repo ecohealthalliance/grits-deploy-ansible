@@ -43,6 +43,9 @@
 - name: Create cron log directory
   file: path={{ cron_logs }} group={{ grits_group }} owner={{ grits_user }} state=directory
 
+- name: Remove id_rsa public key
+  file: path=~/.ssh/id_rsa.pub state=absent
+
 - name: Create github key
   copy: content="{{git_key}}" dest=~/.ssh/id_rsa mode="0700"
 
