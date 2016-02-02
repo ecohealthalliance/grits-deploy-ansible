@@ -34,6 +34,7 @@
   # a permanent process.
   async: 6000
   poll: 0
+  when: docker
 
 - name: Create grits group
   user: name={{ grits_group }}

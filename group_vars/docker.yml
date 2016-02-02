@@ -3,3 +3,4 @@ docker: True
 run_cron_jobs: True
 domain: localhost.localdomain
 public_url: http://{{ domain }}
+grits_api_git_version: "di-image"
