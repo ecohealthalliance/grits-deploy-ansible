@@ -1,49 +1,98 @@
 ---
-# Use `--extra-vars hosts=prod` to set the host
-- hosts: "{{hosts}}"
+# This script will do the following:
+# 1. Provision a new AWS instance to train the classifier on.
+# 2. Train a new classifier classifier using the specified database dump and grits-api branch.
+# 3. Setup a version of GRITS on the new AWS instance the classifier can be tested on.
+#    Remember to terminate it when you are done testing.
+# 4. Save the classifier to the classifier-data bucket in the classifiers folder using the timestamp as a name.
+#    To update the classifier on another grits instance, run the grits-api play with the classifier_id varaiable set to the new classifier's name.
+#    If classifier_id is not specified the newest classifier is used.
+# To run it use this command:
+# sudo ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook train-classifier.yml --vault-password-file grits_vault_password --private-key grits-prod.pem
+- hosts: localhost
+  sudo: yes
+  vars:
+    - instance_size: "m3.2xlarge"
+    - celery_workers: 8
+    - aws_security_group: grits-dev
+    - aws_instance_key_name: grits-prod
+  tasks:
+    - name: Install Python PIP
+      apt: pkg=python-pip state=latest
+      tags:
+        - always
+    - name: Install boto via PIP
+      pip: name=boto state=latest
+      tags:
+        - always
+    - name: Install AWS CLI
+      pip: name=awscli state=latest
+      tags:
+        - always
+    - name: Provision an AWS instance
+      ec2:
+        aws_access_key: "{{ ec2_access_key }}"
+        aws_secret_key: "{{ ec2_secret_key }}"
+        group: "{{ aws_security_group }}"
+        region: "us-east-1"
+        key_name: "{{ aws_instance_key_name }}"
+        instance_type: "{{ instance_size }}"
+        # Ubuntu 14.04 AWS stock image
+        image: "ami-d05e75b8"
+        wait: true
+        # The count prevents more than 1 instances from running at once.
+        exact_count: 1
+        count_tag:
+          Name: GRITS-test
+        instance_tags:
+          Name: GRITS-test
+        volumes:
+         - device_name: /dev/sda1
+           device_type: gp2
+           volume_size: 220
+           delete_on_termination: true
+      register: ec2
+      tags:
+        - always
+    - name: Add all instance public IPs to host group
+      add_host: hostname="{{ item.public_ip }}" ansible_ssh_user="ubuntu" groups=ec2hosts
+      with_items: ec2.tagged_instances
+      tags:
+        - always
+    - name: Wait for the instances to boot by checking the ssh ports
+      wait_for: host={{item.public_ip}} port=22 delay=10 timeout=320 state=started
+      with_items: ec2.tagged_instances
+      tags:
+        - always
+  vars_files:
+    - secure.yml
+    - my_secure.yml
+
+- hosts: ec2hosts
   pre_tasks:
-  - apt: name=expect-dev state=present
-  
-  # Classifiers are not kept in the grits-api folder so the repo can be cleaned
-  # without wiping them out.
-  - set_fact: classifier_path="/home/grits/classifiers/{{ansible_date_time.epoch}}"
-  
-  - debug: msg="To see the training results run this. tail -f {{classifier_path}}/train.log"
-  
-  - file: path={{classifier_path}} state=directory
-
-  - name: Stop grits api group to reclaim memory
-    ignore_errors: yes
-    supervisorctl: name="gritsapigroup:" state=stopped
-    sudo: yes
-
-  - name: Stop tomcat7 to reclaim memory
-    ignore_errors: yes
-    service: name=tomcat7 state=stopped enabled=yes
-    sudo: yes
-
-  - name: Training classifier
-    shell: "unbuffer {{ grits_env }}/bin/python train.py -pickle_dir {{classifier_path}} | tee {{classifier_path}}/train.log"
-    args:
-      chdir: "{{ grits_api_prefix }}"
-    sudo: yes
-  
-  - name: Setting current classifier to the one we just trained
-    file: src={{classifier_path}} dest=/home/grits/current_classifier state=link
-    
-  - name: Loading mongo keywords
-    shell: "{{ grits_env }}/bin/python mongo_import_keywords.py"
-    args:
-      chdir: "{{ grits_api_prefix }}"
-
-  - name: Start tomcat
-    service: name=tomcat7 state=started enabled=yes
-    sudo: yes
-  
-  - name: Start grits api group
-    supervisorctl: name="gritsapigroup:" state=started
-    sudo: yes
-
+    - name: Creating file at root to identify server type
+      file: path=dev state=touch
+  vars:
+    - grits_api_git_version: plant-diseases
+    - s3_mongo_import_directory: proddump
+    - s3_dump_directory: devdump
+    - run_cron_jobs: False
+    - diagnose_on_launch: False
+    - elasticsearch_plugin_marvel_version: 1.0.2
+    - domain: grits-dev.ecohealth.io
+    - public_url: "https://{{ domain }}"
+    - dev: True
+  roles:
+    - { role: ansible-swapfile, swapfile_size: 8GB, swapfile_path: "/swapfile", sudo: yes, sudo_user: "root", tags: ["swapfile"] }
+    - common
+    - apache
+    - mongodb
+    - node
+    - s3restore
+    - { role: grits-api, tags: ["gritsapi"] }
+    - { role: train, tags: ["train"] }
+    - { role: jvm-nlp, tags: ["jvmnlp"] }
+    - { role: diagnostic-dashboard, tags: ["dashboard"] }
   vars_files:
     - secure.yml
   sudo: yes

@@ -145,26 +145,22 @@
     tags: [cleanup_girder]
     when: cleanup_girder is defined
 
-  - name: Install wget package
-    apt: name=wget state=latest
-    tags: classifiers
+  - file: path=/home/grits/classifiers/ state=directory  owner={{ grits_user }}
 
-  - name: Download pretrained classifers
-    shell: wget https://s3-us-west-2.amazonaws.com/grits-classifiers/current_classifier.tar.gz
-    args:
-      chdir: /home/grits
-      creates: current_classifier.tar.gz
-    tags: classifiers
+  - name: Update girder data from s3
+    command: "aws s3 sync s3://classifier-data/classifiers/ /home/grits/classifiers/"
+    sudo: yes
+    sudo_user: "{{ grits_user }}"
+    when: girder_data_access_key is defined
 
-  - name: Untar classifiers tarball
-    shell: tar -zxf current_classifier.tar.gz
-    args:
-      chdir: /home/grits/grits-api
-      creates: /home/grits/current_classifier
-    tags: classifiers
+  - shell: "ls -t /home/grits/classifiers/ | head -1"
+    register: newest_classifier
+    sudo: yes
+  
+  - set_fact: classifier_path="/home/grits/classifiers/{{classifier_id | default(newest_classifier.stdout)}}"
 
-  - file: path=/home/grits/current_classifier mode=0755 recurse=yes state=directory
-    tags: classifiers
+  - name: Setting current classifier to the latest
+    file: src={{classifier_path}} dest=/home/grits/current_classifier state=link
 
   # Create a symlink to the current_classifier symlink in the home directory
   # because the symlink in the grits-api directory gets wiped out when the
