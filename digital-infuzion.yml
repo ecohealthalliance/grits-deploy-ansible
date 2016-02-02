@@ -10,6 +10,7 @@
     - mongodb
     - node
     - { role: grits-api, tags: ["gritsapi"] }
+    - download-classifier
     - { role: jvm-nlp, tags: ["jvmnlp"] }
     - { role: diagnostic-dashboard, tags: ["dashboard"] }
   vars_files:

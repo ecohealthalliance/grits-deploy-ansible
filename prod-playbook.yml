@@ -14,6 +14,7 @@
     - s3restore
     - { role: girder, tags: ["girder"] }
     - grits-api
+    - download-classifier
     - { role: jvm-nlp }
     - { role: diagnostic-dashboard, tags: ["dashboard"] }
     - { role: ansible-elasticsearch, tags: ["elasticsearch"] }

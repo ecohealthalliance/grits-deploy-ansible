@@ -20,19 +20,28 @@
   service: name=tomcat7 state=stopped enabled=yes
   sudo: yes
 
+- name: Create database directory
+  file: path="/home/{{ grits_user }}/promed_dump" state=directory owner="{{ grits_user }}"
+
+- name: Download promed db promed_dump from s3
+  command: "aws s3 cp --recursive s3://promed-database/dump /home/{{ grits_user }}/promed_dump"
+  sudo: yes
+  sudo_user: "{{ grits_user }}"
+
+- name: Import promed articles from db dump
+  command: "mongorestore /home/{{ grits_user }}/promed_dump/promed --db promed --drop"
+
 - name: Training classifier
   shell: "unbuffer {{ grits_env }}/bin/python train.py -pickle_dir {{classifier_path}} | tee {{classifier_path}}/train.log"
   args:
     chdir: "{{ grits_api_prefix }}"
   sudo: yes
 
-- name: Setting current classifier to the one we just trained
-  file: src={{classifier_path}} dest=/home/grits/current_classifier state=link
+- stat: path={{classifier_path}}/classifier.p
+  register: classifier
 
-- name: Loading mongo keywords
-  shell: "{{ grits_env }}/bin/python mongo_import_keywords.py"
-  args:
-    chdir: "{{ grits_api_prefix }}"
+- assert:
+    that: classifier.stat.exists
 
 - name: Backup the classifier to S3
   command: aws s3 cp --recursive {{classifier_path}} s3://classifier-data/classifiers/{{ classifier_name }}

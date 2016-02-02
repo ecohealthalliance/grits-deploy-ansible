@@ -5,8 +5,9 @@
 # 3. Setup a version of GRITS on the new AWS instance the classifier can be tested on.
 #    Remember to terminate it when you are done testing.
 # 4. Save the classifier to the classifier-data bucket in the classifiers folder using the timestamp as a name.
-#    To update the classifier on another grits instance, run the grits-api play with the classifier_id varaiable set to the new classifier's name.
+#    To update the classifier on another grits instance, run the grits-api play with the classifier_name varaiable set to the new classifier's name.
 #    If classifier_id is not specified the newest classifier is used.
+# 5. Automatically shutdown the instance to prevent accidental overuse.
 # To run it use this command:
 # sudo ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook train-classifier.yml --vault-password-file grits_vault_password --private-key grits-prod.pem
 - hosts: localhost
@@ -60,7 +61,7 @@
       tags:
         - always
     - name: Wait for the instances to boot by checking the ssh ports
-      wait_for: host={{item.public_ip}} port=22 delay=10 timeout=320 state=started
+      wait_for: host={{item.public_ip}} port=22 delay=6 timeout=320 state=started
       with_items: ec2.tagged_instances
       tags:
         - always
@@ -82,6 +83,7 @@
     - domain: grits-dev.ecohealth.io
     - public_url: "https://{{ domain }}"
     - dev: True
+    - skip_geonames: True
   roles:
     - { role: ansible-swapfile, swapfile_size: 8GB, swapfile_path: "/swapfile", sudo: yes, sudo_user: "root", tags: ["swapfile"] }
     - common
@@ -91,8 +93,13 @@
     - s3restore
     - { role: grits-api, tags: ["gritsapi"] }
     - { role: train, tags: ["train"] }
+    - download-classifier
     - { role: jvm-nlp, tags: ["jvmnlp"] }
     - { role: diagnostic-dashboard, tags: ["dashboard"] }
+  post_tasks:
+    - name: Shut down the instance in one hour (to cancel use shutdown -c)
+      command: "shutdown -h +60"
+      sudo: True
   vars_files:
     - secure.yml
   sudo: yes

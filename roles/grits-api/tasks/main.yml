@@ -84,6 +84,7 @@
 
   - name: Download geonames data
     get_url: url=http://download.geonames.org/export/dump/allCountries.zip dest={{ annie_prefix }}/allCountries.zip
+    when: "not {{skip_geonames | default(False)}}"
 
   - name: Extract geonames zip
     unarchive:
@@ -91,6 +92,7 @@
       dest: "{{ annie_prefix }}"
       copy: no
       creates: "{{ annie_prefix }}/allCountries.txt"
+    when: "not {{skip_geonames | default(False)}}"
 
   - name: Import geonames database
     shell: "{{ grits_env }}/bin/python mongo_import_geonames.py --mongo_url {{ mongo_url }} && echo done > .geonames.imported"
@@ -99,6 +101,7 @@
       # This approach might cause annie updates to trigger unnecessairy geonames updates.
       creates: "{{ annie_prefix }}/.geonames.imported"
     sudo: yes
+    when: "not {{skip_geonames | default(False)}}"
 
   - name: Install supervisord configs
     template: src={{ item }}.conf.j2 dest=/etc/supervisor/conf.d/{{ item }}.conf
@@ -144,34 +147,3 @@
     command: mongo localhost:27017/girder /tmp/cleanup_girder.js
     tags: [cleanup_girder]
     when: cleanup_girder is defined
-
-  - file: path=/home/grits/classifiers/ state=directory  owner={{ grits_user }}
-
-  - name: Update girder data from s3
-    command: "aws s3 sync s3://classifier-data/classifiers/ /home/grits/classifiers/"
-    sudo: yes
-    sudo_user: "{{ grits_user }}"
-    when: girder_data_access_key is defined
-
-  - shell: "ls -t /home/grits/classifiers/ | head -1"
-    register: newest_classifier
-    sudo: yes
-  
-  - set_fact: classifier_path="/home/grits/classifiers/{{classifier_id | default(newest_classifier.stdout)}}"
-
-  - name: Setting current classifier to the latest
-    file: src={{classifier_path}} dest=/home/grits/current_classifier state=link
-
-  # Create a symlink to the current_classifier symlink in the home directory
-  # because the symlink in the grits-api directory gets wiped out when the
-  # grits-api repository is updated.
-  # "All problems in computer science can be solved by another level of indirection"
-  # -David Wheeler
-  - name: Creating current_classifier symlink
-    file: src=/home/grits/current_classifier dest={{ grits_api_prefix }}/current_classifier state=link force=yes
-    sudo: true
-    
-  - name: Loading mongo keywords used for annotation
-    shell: "{{ grits_env }}/bin/python mongo_import_keywords.py"
-    args:
-      chdir: "{{ grits_api_prefix }}"
