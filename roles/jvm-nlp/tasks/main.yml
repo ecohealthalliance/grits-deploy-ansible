@@ -7,15 +7,19 @@
       - default-jre
       - default-jdk
       - tomcat7
+    tags: jvm-nlp
 
   - name: Configure tomcat
     template: src=tomcat7.j2 dest=/etc/default/tomcat7
     sudo: yes
     notify: restart tomcat
+    tags: jvm-nlp
 
   - name: Enable tomcat service
     service: name=tomcat7 state=started enabled=yes
     sudo: yes
+    when: not docker
+    tags: jvm-nlp
 
   - name: Sync jvm-nlp code
     git: 
@@ -24,12 +28,14 @@
       accept_hostkey: yes
       version: "{{ jvm_nlp_git_version }}"
     register: jvmnlp
+    tags: jvm-nlp
 
   - name: Remove untracked files in jvn-nlp directory
     shell: "git clean -dfx"
     args:
       chdir: "{{ jvm_nlp_prefix }}"
     when: jvmnlp.changed
+    tags: jvm-nlp
 
   - name: Run sbt package
     shell: "/bin/bash {{ jvm_nlp_prefix }}/sbt package && echo done > .sbt_package_done"
@@ -37,16 +43,26 @@
       chdir: "{{ jvm_nlp_prefix }}"
       creates: "{{ jvm_nlp_prefix }}/.sbt_package_done"
     when: jvmnlp.changed
+    tags: jvm-nlp
 
   - name: Delete webapps/ROOT*
     shell: "rm -rf /var/lib/tomcat7/webapps/ROOT*"
     sudo: yes
     when: jvmnlp.changed
+    tags: jvm-nlp
 
   - name: Install jvm-nlp to webapps
     shell: "cp {{ jvm_nlp_prefix }}/target/scala-2.11/*.war /var/lib/tomcat7/webapps/ROOT.war"
     sudo: yes
     when: jvmnlp.changed
+    tags: jvm-nlp
 
   # force restart tomcat here, but maybe okay to notify the handler
   - include: ../handlers/main.yml
+    when: not docker
+    tags: jvm-nlp
+
+  - template: src=tomcatd.conf.j2 dest=/etc/supervisor/conf.d/tomcatd.conf
+    when: docker
+    tags: jvm-nlp
+

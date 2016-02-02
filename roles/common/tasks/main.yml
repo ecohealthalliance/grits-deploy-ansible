@@ -15,6 +15,11 @@
     - python-pip
     - python-dev
     - supervisor
+    - curl
+  tags:
+    - mongodb
+    - apache
+    - jvm-nlp
 
 - name: Install global python modules
   pip: name={{item}}
@@ -22,6 +27,14 @@
   with_items:
     - awscli
     - virtualenv
+
+- name: Run supervisord in the background fire and forget style
+  command: supervisord --nodaemon --config /etc/supervisor/supervisord.conf
+  # Eventually this process will timeout. The run.sh script need to run to start
+  # a permanent process.
+  async: 6000
+  poll: 0
+  when: docker
 
 - name: Create grits group
   user: name={{ grits_group }}
@@ -37,6 +50,9 @@
 
 - name: Create cron log directory
   file: path={{ cron_logs }} group={{ grits_group }} owner={{ grits_user }} state=directory
+
+- name: Remove id_rsa public key
+  file: path=~/.ssh/id_rsa.pub state=absent
 
 - name: Create github key
   copy: content="{{git_key}}" dest=~/.ssh/id_rsa mode="0700"

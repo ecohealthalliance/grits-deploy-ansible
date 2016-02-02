@@ -1,10 +1,31 @@
 <VirtualHost *:80>
   ServerName {{ apache_url }}
   RewriteEngine on
+{% if not docker %}
   RewriteCond %{HTTPS} off
   RewriteRule ^(.*) https://%{HTTP_HOST}%{REQUEST_URI}
+{% else %}
+  RewriteRule ^{{ girder_mount_path }}$ {{ girder_mount_path }}/ [R]
+  RewriteRule ^/internal.* [F]
+  RewriteCond %{HTTP:UPGRADE} ^WebSocket$ [NC]
+  RewriteCond %{HTTP:CONNECTION} ^Upgrade$ [NC]
+  RewriteRule .* ws://localhost:{{ meteor_port }}%{REQUEST_URI} [P]
+
+  ProxyPass {{ girder_mount_path }}/ http://localhost:{{ girder_socket_port }}/
+  ProxyPassReverse {{ girder_mount_path }}/ http://localhost:{{ girder_socket_port }}/
+  ProxyPass /api/v1/public_diagnose http://localhost:5000/public_diagnose
+  ProxyPassReverse /api/v1/public_diagnose http://localhost:5000/public_diagnose
+  ProxyPass /api/v1/bsve/ http://localhost:5000/bsve/
+  ProxyPassReverse /api/v1/bsve/ http://localhost:5000/bsve/
+  ProxyPass /api/v1 http://localhost:444/api/v1
+  ProxyPassReverse /api/v1 http://localhost:444/api/v1
+  ProxyPass / http://localhost:{{ meteor_port }}/
+  ProxyPassReverse / http://localhost:{{ meteor_port }}/
+{% endif%}
 </VirtualHost>
 
+
+{% if not docker %}
 <VirtualHost *:443>
   ServerName {{ apache_url }}
   SSLEngine on
@@ -31,6 +52,8 @@
   ProxyPass / http://localhost:{{ meteor_port }}/
   ProxyPassReverse / http://localhost:{{ meteor_port }}/
 </VirtualHost>
+{% endif%}
+
 
 <VirtualHost *:444>
   ServerName {{ apache_url }}

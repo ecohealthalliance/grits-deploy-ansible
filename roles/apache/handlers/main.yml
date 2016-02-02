@@ -2,3 +2,4 @@
 
   - name: restart apache2
     service: name=apache2 state=restarted
+    when: not docker

@@ -1,0 +1,28 @@
+---
+
+- hosts: docker
+  pre_tasks:
+  - name: Creating file at root to identify server type
+    file: path=dev state=touch
+  roles:
+    - common
+    - apache
+    - mongodb
+    - node
+    - { role: grits-api, tags: ["gritsapi"] }
+    - { role: jvm-nlp, tags: ["jvmnlp"] }
+    - { role: diagnostic-dashboard, tags: ["dashboard"] }
+  vars_files:
+    - secure.yml
+  tasks:
+    #########################################################################
+    # Place security related commands in security.sh instead of ansible plays
+    # When this last script runs, we lose the ability to SSH in with ansible
+    #########################################################################
+    - name: Copy security.sh to server
+      template: src=./security.sh dest=/security.sh owner=root group=root mode=0500
+      tags: security
+
+    - name: Execute security.sh on the server
+      shell: bash /security.sh
+      tags: security

@@ -112,3 +112,5 @@ girder_git_version: "8165a805249728bca59bc557a9ec72db9c21d748"
 grid_search_git_version: "124fc5077e9e16e7a702298e52b7aa85a7898912"
 
 bsve_endpoint: "http://beta-search.bsvecosystem.net"
+
+docker: False
