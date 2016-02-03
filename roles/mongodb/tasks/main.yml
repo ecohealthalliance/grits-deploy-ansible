@@ -24,6 +24,8 @@
   apt: name=mongodb-org state=installed
   tags: mongodb
 
+- template: src=mongo-conf.j2 dest=/etc/mongod.conf
+
 - name: Start the mongodb service for Ubuntu variants
   service: name=mongod state=started enabled=yes
   tags: mongodb
