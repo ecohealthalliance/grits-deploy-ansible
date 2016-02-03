@@ -8,7 +8,7 @@
 #    To update the classifier on another grits instance, run the grits-api play with the classifier_id varaiable set to the new classifier's name.
 #    If classifier_id is not specified the newest classifier is used.
 # 5. Automatically shutdown the instance to prevent accidental overuse.
-# To run it use this command:
+# To run it, create a my_secure.yml file with ec2_access_key and ec2_secret_key variables then run this command:
 # sudo ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook train-classifier.yml --vault-password-file grits_vault_password --private-key grits-prod.pem
 - hosts: localhost
   sudo: yes
@@ -72,7 +72,7 @@
 - hosts: ec2hosts
   pre_tasks:
     - name: Creating file at root to identify server type
-      file: path=dev state=touch
+      file: path=train state=touch
   vars:
     - grits_api_git_version: plant-diseases
     - s3_mongo_import_directory: proddump
