@@ -54,62 +54,62 @@
   - name: Install postfix main config
     template: src=postfix_main.cf.j2 dest=/etc/postfix/main.cf
     sudo: yes
-    when: not docker
+    when: not docker and not disable_postfix
 
   - name: Install postfix master config
     template: src=postfix_master.cf.j2 dest=/etc/postfix/master.cf
     sudo: yes
-    when: not docker
+    when: not docker and not disable_postfix
 
   - name: Install postfix transport
     template: src=postfix_transport.j2 dest=/etc/postfix/transport
     sudo: yes
-    when: not docker
+    when: not docker and not disable_postfix
 
   - name: Install postfix aliases
     template: src=postfix_alias.j2 dest=/etc/postfix/virtual_alias
     sudo: yes
-    when: not docker
+    when: not docker and not disable_postfix
 
   - name: Install postfix access
     template: src=postfix_access.j2 dest=/etc/postfix/access
     sudo: yes
-    when: not docker
+    when: not docker and not disable_postfix
 
   - name: Install script to pipe mail to dashboard
     template: src=postfix_gritsmail.sh.j2 dest=/etc/postfix/gritsmail.sh group={{ grits_group }} owner={{ grits_user }} mode=0744
     sudo: yes
-    when: not docker
+    when: not docker and not disable_postfix
 
   - name: Install script to pipe mail to dashboard
     template: src=parse_email.py dest=/etc/postfix/parse_email.py group={{ grits_group }} owner={{ grits_user }}
     sudo: yes
-    when: not docker
+    when: not docker and not disable_postfix
 
   - name: Ensure mailname exists
     shell: cat /etc/mailname || cat /etc/hostname > /etc/mailname
     sudo: yes
-    when: not docker
+    when: not docker and not disable_postfix
 
   - name: Run postmap on transport
     command: postmap /etc/postfix/transport
     sudo: yes
-    when: not docker
+    when: not docker and not disable_postfix
 
   - name: Run postmap on aliases
     command: postmap /etc/postfix/virtual_alias
     sudo: yes
-    when: not docker
+    when: not docker and not disable_postfix
 
   - name: Run postmap on access
     command: postmap /etc/postfix/access
     sudo: yes
-    when: not docker
+    when: not docker and not disable_postfix
 
   - name: Restart postfix
     command: service postfix restart
     sudo: yes
-    when: not docker
+    when: not docker and not disable_postfix
 
   - name: Restart dashboard process
     supervisorctl: name="dashboard" state=restarted
