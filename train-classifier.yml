@@ -5,7 +5,7 @@
 # 3. Setup a version of GRITS on the new AWS instance the classifier can be tested on.
 #    Remember to terminate it when you are done testing.
 # 4. Save the classifier to the classifier-data bucket in the classifiers folder using the timestamp as a name.
-#    To update the classifier on another grits instance, run the grits-api play with the classifier_name varaiable set to the new classifier's name.
+#    To update the classifier on another grits instance, run the grits-api play with the classifier_id varaiable set to the new classifier's name.
 #    If classifier_id is not specified the newest classifier is used.
 # 5. Automatically shutdown the instance to prevent accidental overuse.
 # To run it use this command:
