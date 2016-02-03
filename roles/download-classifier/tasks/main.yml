@@ -7,16 +7,22 @@
   sudo_user: "{{ grits_user }}"
   when: girder_data_access_key is defined
 
-- shell: "ls -t /home/grits/classifiers/ | head -1"
-  register: newest_classifier
+- name: Find newest classifier directory
+  # The directory timestamps are not preserved on AWS, so the file timestamps are used.
+  shell: "ls -t /home/grits/classifiers/*/*.p | head -1 | xargs dirname"
+  register: newest_classifier_dir
   sudo: yes
 
-- set_fact: classifier_path="/home/grits/classifiers/{{classifier_id | default(newest_classifier.stdout)}}"
+- set_fact: classifier_path="{{newest_classifier_dir.stdout}}"
+
+- set_fact: classifier_path="/home/grits/classifiers/{{classifier_id}}"
+  when: classifier_id is defined and classifier_id != "newest"
 
 - name: Setting current classifier to the latest
   file: src={{classifier_path}} dest={{ grits_api_prefix }}/current_classifier state=link force=yes
   register: classifier_symlink
   sudo: true
+  notify: restart grits api group
 
 - name: Loading mongo keywords used for annotation
   shell: "{{ grits_env }}/bin/python mongo_import_keywords.py"

@@ -85,6 +85,7 @@
     - dev: True
     - skip_geonames: True
     - disable_postfix: True
+    - classifier_id: newest
   roles:
     - { role: ansible-swapfile, swapfile_size: 8GB, swapfile_path: "/swapfile", sudo: yes, sudo_user: "root", tags: ["swapfile"] }
     - common
@@ -94,7 +95,7 @@
     - s3restore
     - { role: grits-api, tags: ["gritsapi"] }
     - { role: train, tags: ["train"] }
-    - download-classifier
+    - { role: download-classifier, tags: "download-classifier" }
     - { role: jvm-nlp, tags: ["jvmnlp"] }
     - { role: diagnostic-dashboard, tags: ["dashboard"] }
   post_tasks:
