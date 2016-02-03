@@ -52,7 +52,9 @@
 - name: Start tomcat
   service: name=tomcat7 state=started enabled=yes
   sudo: yes
+  ignore_errors: yes
 
 - name: Start grits api group
   supervisorctl: name="gritsapigroup:" state=started
   sudo: yes
+  ignore_errors: yes

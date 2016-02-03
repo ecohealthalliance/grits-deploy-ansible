@@ -44,9 +44,9 @@
         # The count prevents more than 1 instances from running at once.
         exact_count: 1
         count_tag:
-          Name: GRITS-test
+          Name: GRITS-train-classifier
         instance_tags:
-          Name: GRITS-test
+          Name: GRITS-train-classifier
         volumes:
          - device_name: /dev/sda1
            device_type: gp2
@@ -84,6 +84,7 @@
     - public_url: "https://{{ domain }}"
     - dev: True
     - skip_geonames: True
+    - disable_postfix: True
   roles:
     - { role: ansible-swapfile, swapfile_size: 8GB, swapfile_path: "/swapfile", sudo: yes, sudo_user: "root", tags: ["swapfile"] }
     - common
@@ -100,6 +101,8 @@
     - name: Shut down the instance in one hour (to cancel use shutdown -c)
       command: "shutdown -h +60"
       sudo: True
+      async: 3660
+      poll: 0
   vars_files:
     - secure.yml
   sudo: yes
