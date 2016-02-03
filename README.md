@@ -67,6 +67,11 @@ Helpful links:
  * http://docs.ansible.com/guide_aws.html
  * http://docs.ansible.com/intro_dynamic_inventory.html#example-aws-ec2-external-inventory-script
 
+### Deploying to a docker container
+
+```
+ansible-playbook prod-playbook.yml -i docker-inventory.ini --vault-password-file ~/vault-password  --private-key ~/ecohealth/keys/deployment-keys/docker-ansible-deploy
+```  
 
 ### License
 Copyright 2016 EcoHealth Alliance
