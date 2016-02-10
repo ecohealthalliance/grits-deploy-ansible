@@ -70,6 +70,7 @@
     - my_secure.yml
 
 - hosts: ec2hosts
+  remote_user: ubuntu
   pre_tasks:
     - name: Creating file at root to identify server type
       file: path=train state=touch
