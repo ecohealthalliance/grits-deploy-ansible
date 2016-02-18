@@ -56,6 +56,7 @@
     command: a2enconf proxy
     notify: restart apache2
     tags: apache
+    when: not docker
 
   - template: src=supervisor-apached.conf.j2 dest=/etc/supervisor/conf.d/apached.conf
     when: docker
