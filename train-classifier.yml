@@ -75,7 +75,8 @@
     - name: Creating file at root to identify server type
       file: path=train state=touch
   vars:
-    - grits_api_git_version: plant-diseases
+    - diagnostic_dashboard_git_version: master
+    - grits_api_git_version: eha-curated-data
     - s3_mongo_import_directory: proddump
     - s3_dump_directory: devdump
     - run_cron_jobs: False
