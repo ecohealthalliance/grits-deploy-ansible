@@ -23,11 +23,6 @@
   command: 'mongo girder --eval "db.item.count()" --quiet'
   register: girder_items
 
-- assert:
-    that:
-      - 'girder_items.stdout == "0"'
-  when: girder_items.stdout == "0"
-
 - name: Update girder data from s3
   command: aws s3 sync s3://girder-data/{{ s3_mongo_import_directory }} /home/{{ grits_user }}/dump
   args:
