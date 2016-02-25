@@ -14,10 +14,14 @@
   tags: s3-restore
   when: girder_data_access_key is defined
 
-- name: Create database directory
+- name: Create database dump directory
   file: path=/home/{{ grits_user }}/dump state=directory owner={{ grits_user }} group={{ grits_group }}
   tags: s3-restore
   when: girder_data_access_key is defined
+
+- name: Count girder items. The database is only restored if there are no items or restore_database is defined.
+  command: 'mongo girder --eval "db.item.count()" --quiet'
+  register: girder_items
 
 - name: Update girder data from s3
   command: aws s3 sync s3://girder-data/{{ s3_mongo_import_directory }} /home/{{ grits_user }}/dump
@@ -26,9 +30,9 @@
   sudo: yes
   sudo_user: "{{ grits_user }}"
   register: s3_data_dumped
-  when: girder_data_access_key is defined
+  when: girder_data_access_key is defined and (girder_items.stdout == "0" or restore_database)
   tags: s3-restore
-  
+
 - name: Import girder data from dump
   command: mongorestore /home/{{ grits_user }}/dump --drop
   when: s3_data_dumped.changed

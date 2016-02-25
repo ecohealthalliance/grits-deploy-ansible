@@ -115,9 +115,3 @@
     supervisorctl: name="dashboard" state=restarted
     when: not docker and dashboard.changed
     sudo: yes
-
-  - name: Autocomplete collection
-    command: mongo .scripts/autocompleteCollections.js
-    args:
-      chdir: "{{ diagnostic_dashboard_prefix }}"
-    when: not docker and dashboard.changed
