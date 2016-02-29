@@ -15,4 +15,5 @@
   when: docker
 
 - service: name=supervisor state=restarted
+  when: not docker
 
