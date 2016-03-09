@@ -5,17 +5,17 @@
   tags: s3-restore
 
 - name: Create aws crendentials directory
-  file: path=/home/{{ grits_user }}/.aws state=directory owner={{ grits_user }} group={{ grits_group }}
+  file: path={{ grits_user_home }}/.aws state=directory owner={{ grits_user }} group={{ grits_group }}
   tags: s3-restore
   when: girder_data_access_key is defined
 
 - name: Create aws credentials
-  template: src=config.j2 dest=/home/{{ grits_user }}/.aws/config owner={{ grits_user }} group={{ grits_group }}
+  template: src=config.j2 dest={{ grits_user_home }}/.aws/config owner={{ grits_user }} group={{ grits_group }}
   tags: s3-restore
   when: girder_data_access_key is defined
 
 - name: Create database dump directory
-  file: path=/home/{{ grits_user }}/dump state=directory owner={{ grits_user }} group={{ grits_group }}
+  file: path={{ grits_user_home }}/dump state=directory owner={{ grits_user }} group={{ grits_group }}
   tags: s3-restore
   when: girder_data_access_key is defined
 
@@ -24,9 +24,9 @@
   register: girder_items
 
 - name: Update girder data from s3
-  command: aws s3 sync s3://girder-data/{{ s3_mongo_import_directory }} /home/{{ grits_user }}/dump
+  command: aws s3 sync s3://girder-data/{{ s3_mongo_import_directory }} {{ grits_user_home }}/dump
   args:
-    creates: /home/{{ grits_user }}/dump/girder
+    creates: "{{ grits_user_home }}/dump/girder"
   sudo: yes
   sudo_user: "{{ grits_user }}"
   register: s3_data_dumped
@@ -34,6 +34,6 @@
   tags: s3-restore
 
 - name: Import girder data from dump
-  command: mongorestore /home/{{ grits_user }}/dump --drop
+  command: mongorestore {{ grits_user_home }}/dump --drop
   when: s3_data_dumped.changed
   tags: s3-restore

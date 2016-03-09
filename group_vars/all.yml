@@ -2,6 +2,7 @@
 
 grits_user: grits
 grits_group: grits
+grits_user_home: "/home/{{ grits_user }}"
 apache_url: "https://{% if ansible_eth1 is defined %}{{ ansible_eth1.ipv4.address }}{% else %}{{ ansible_eth0.ipv4.address }}{% endif %}"
 girder_mount_path: /gritsdb
 girder_socket_host: 127.0.0.1
@@ -11,11 +12,11 @@ girder_admin_email: "{{ girder_admin_email }}"
 girder_admin_password: "{{ girder_admin_password }}"
 girder_plugins: ["gritsSearch", "grid-search"]
 
-grits_api_prefix: "/home/{{ grits_user }}/grits-api"
-grits_env: "/home/{{ grits_user }}/grits_env"
-annie_prefix: "/home/{{ grits_user }}/annie"
-diagnostic_dashboard_prefix: "/home/{{ grits_user }}/diagnostic-dashboard"
-jvm_nlp_prefix: "/home/{{ grits_user }}/jvm-nlp"
+grits_api_prefix: "{{ grits_user_home }}/grits-api"
+grits_env: "{{ grits_user_home }}/grits_env"
+annie_prefix: "{{ grits_user_home }}/annie"
+diagnostic_dashboard_prefix: "{{ grits_user_home }}/diagnostic-dashboard"
+jvm_nlp_prefix: "{{ grits_user_home }}/jvm-nlp"
 
 elasticsearch_version: 1.2.2
 elasticsearch_heap_size: 2g
@@ -94,10 +95,10 @@ mail_url: "smtp://localhost"
 grid_url: "https://eidr.ecohealthalliance.org"
 
 # where to put cron scripts
-cron_prefix: /home/{{ grits_user }}/cron
+cron_prefix: "{{ grits_user_home }}/cron"
 
 # where to put cron logs
-cron_logs: /home/{{ grits_user }}/cron/logs
+cron_logs: "{{ grits_user_home }}/cron/logs"
 
 flower_port: 5555
 

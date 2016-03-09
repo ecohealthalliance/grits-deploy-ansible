@@ -40,10 +40,11 @@
   user: name={{ grits_group }}
 
 - name: Create grits user
-  user: name={{ grits_user }} group={{ grits_group }} shell=/bin/bash
+  user: name={{ grits_user }} group={{ grits_group }} shell=/bin/bash home={{ grits_user_home }}
+  when: docker
 
 - name: Create grits environment configuration
-  template: src=config.j2 dest=/home/{{ grits_user }}/grits_config group={{ grits_group }} owner={{ grits_user }}
+  template: src=config.j2 dest={{ grits_user_home }}/grits_config group={{ grits_group }} owner={{ grits_user }}
 
 - name: Create cron script directory
   file: path={{ cron_prefix }} group={{ grits_group }} owner={{ grits_user }} state=directory
@@ -57,11 +58,11 @@
 - name: Create github key
   copy: content="{{git_key}}" dest=~/.ssh/id_rsa mode="0700"
 
-- stat: path=/home/grits/diagnostic-dashboard/.git
+- stat: path={{ grits_user_home }}/diagnostic-dashboard/.git
   register: indicator_git_dir
 
 - name: Remove old non-git synced code
-  file: path=/home/grits/{{item}} state=absent
+  file: path={{ grits_user_home }}/{{item}} state=absent
   when: not (indicator_git_dir.stat.isdir is defined and indicator_git_dir.stat.isdir)
   with_items:
     - grits-api

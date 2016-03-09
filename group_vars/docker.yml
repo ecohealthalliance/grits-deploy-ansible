@@ -4,3 +4,11 @@ run_cron_jobs: True
 domain: localhost.localdomain
 public_url: http://{{ domain }}
 grits_api_git_version: "master"
+grits_user_home: "/var/lib/mongo/{{ grits_user }}"
+grits_api_prefix: "{{ grits_user_home }}/grits-api"
+grits_env: "{{ grits_user_home }}/grits_env"
+annie_prefix: "{{ grits_user_home }}/annie"
+diagnostic_dashboard_prefix: "{{ grits_user_home }}/diagnostic-dashboard"
+jvm_nlp_prefix: "{{ grits_user_home }}/jvm-nlp"
+cron_prefix: "{{ grits_user_home }}/cron"
+cron_logs: "{{ grits_user_home }}/cron/logs"

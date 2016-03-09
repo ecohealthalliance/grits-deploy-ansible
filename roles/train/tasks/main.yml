@@ -4,7 +4,7 @@
 # Classifiers are not kept in the grits-api folder so the repo can be cleaned
 # without wiping them out.
 - set_fact: classifier_name="{{ansible_date_time.epoch}}"
-- set_fact: classifier_path="/home/grits/classifiers/{{classifier_name}}"
+- set_fact: classifier_path="{{ grits_user_home }}/classifiers/{{classifier_name}}"
 
 - debug: msg="To see the training results run this. tail -f {{classifier_path}}/train.log"
 
@@ -21,15 +21,15 @@
   sudo: yes
 
 - name: Create database directory
-  file: path="/home/{{ grits_user }}/promed_dump" state=directory owner="{{ grits_user }}"
+  file: path="{{ grits_user_home }}/promed_dump" state=directory owner="{{ grits_user }}"
 
 - name: Download promed db promed_dump from s3
-  command: "aws s3 cp --recursive s3://promed-database/dump /home/{{ grits_user }}/promed_dump"
+  command: "aws s3 cp --recursive s3://promed-database/dump {{ grits_user_home }}/promed_dump"
   sudo: yes
   sudo_user: "{{ grits_user }}"
 
 - name: Import promed articles from db dump
-  command: "mongorestore /home/{{ grits_user }}/promed_dump/promed --db promed --drop"
+  command: "mongorestore {{ grits_user_home }}/promed_dump/promed --db promed --drop"
 
 - name: Training classifier
   shell: "unbuffer {{ grits_env }}/bin/python train.py -pickle_dir {{classifier_path}} | tee {{classifier_path}}/train.log"
