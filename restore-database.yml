@@ -3,7 +3,7 @@
 - hosts: prod
   pre_tasks:
   - name: Remove old girder data from s3
-    file: path=/home/{{ grits_user }}/dump state=absent
+    file: path={{ grits_user_home }}/dump state=absent
   roles:
     - s3restore
   vars_files:
