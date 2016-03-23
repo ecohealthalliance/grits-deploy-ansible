@@ -35,7 +35,7 @@
     tags: apache
 
   - name: Configure apache proxy
-    template: src=proxy.conf.j2 dest=/etc/apache2/conf-available/proxy.conf
+    template: src=proxy.conf.j2 dest=/etc/apache2/conf-enabled/proxy.conf
     tags: apache
   
   - name: Configure apache ports
