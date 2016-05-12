@@ -43,6 +43,8 @@
   user: name={{ grits_user }} group={{ grits_group }} shell=/bin/bash home={{ grits_user_home }}
   when: docker
 
+- file: path={{ grits_user_home }} owner={{ grits_user }} group={{ grits_group }} state=directory
+
 - name: Create grits environment configuration
   template: src=config.j2 dest={{ grits_user_home }}/grits_config group={{ grits_group }} owner={{ grits_user }}
 
