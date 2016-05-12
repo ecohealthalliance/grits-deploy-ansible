@@ -83,12 +83,12 @@ girder_item_template_source:
               type: string
               index: not_analyzed
 
-mongo_url: localhost
-celery_broker: "mongodb://localhost:27017/tasks"
+mongo_url: 172.30.2.123
+celery_broker: "mongodb://172.30.2.123:27017/tasks"
 
 meteor_port: 3001
 meteor_db_name: diagnosis
-mongo_host: localhost
+mongo_host: 172.30.2.123
 mongo_port: 27017
 meteor_mongo: "mongodb://{{mongo_host}}:{{mongo_port}}/{{ meteor_db_name }}"
 mail_url: "smtp://localhost"
