@@ -27,7 +27,8 @@
   command: aws s3 sync s3://girder-data/{{ s3_mongo_import_directory }} {{ grits_user_home }}/dump
   args:
     creates: "{{ grits_user_home }}/dump/girder"
-  become_user: "{{ grits_user }}"
+  sudo: yes
+  sudo_user: "{{ grits_user }}"
   register: s3_data_dumped
   when: girder_data_access_key is defined and (girder_items.stdout == "0" or restore_database)
   tags: s3-restore
