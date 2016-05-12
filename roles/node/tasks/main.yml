@@ -1,8 +1,5 @@
 ---
 
-- name: Add ppa:chris-lea/node.js
-  apt_repository: repo='ppa:chris-lea/node.js'
-
 - name: Install node with dependencies
   apt: name={{item}} state=installed
   with_items:
@@ -11,3 +8,5 @@
     - g++
     - make
     - nodejs
+    - nodejs-legacy
+
