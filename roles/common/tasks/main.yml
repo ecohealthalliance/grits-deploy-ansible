@@ -55,7 +55,7 @@
 - name: Remove id_rsa public key
   file: path=~/.ssh/id_rsa.pub state=absent
 
-- file: path=~/.ssh mode="0700" state=present
+- file: path=~/.ssh mode="0700" state=directory
 
 - name: Create github key
   copy: content="{{git_key}}" dest=~/.ssh/id_rsa mode="0700"
