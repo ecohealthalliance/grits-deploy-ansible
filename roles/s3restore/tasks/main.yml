@@ -20,7 +20,7 @@
   when: girder_data_access_key is defined
 
 - name: Count girder items. The database is only restored if there are no items or restore_database is defined.
-  command: 'mongo girder --eval "db.item.count()" --quiet'
+  command: 'mongo --host {{ mongo_host }} girder --eval "db.item.count()" --quiet'
   register: girder_items
 
 - name: Update girder data from s3
