@@ -9,7 +9,7 @@
     - common
     - postfix
     - apache
-    - { role: mongodb, tags: ["mongodb"] }
+    #- { role: mongodb, tags: ["mongodb"] }
     - node
     - s3restore
     - { role: girder, tags: ["girder"] }
