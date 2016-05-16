@@ -69,7 +69,7 @@
 - name: |
     Get elasticsearch index status 
     (On the first run the index will be incomplete because there is lots of bg processing left to do)
-  command: curl 'http://localhost:9200/item_index/_status'
+  command: curl 'http://{{ mongo_host }}:9200/item_index/_status'
   register: item_index_status
 #- debug: var={{(item_index_status.stdout|from_json).indices.item_index.docs.num_docs}}
 - name: Test elasticsearch index
