@@ -23,7 +23,7 @@
 #  wait_for: port={{mongo_port}} delay=2
 
 # Test to see if the replica set has been configured
-- command: mongo --eval 'printjson(rs.conf())' --quiet
+- command: mongo --host {{ mongo_host }} --eval 'printjson(rs.conf())' --quiet
   register: mongoRsConf
 
 # Running this seems to break the ES river, so it should only happen once.
