@@ -1,10 +1,16 @@
 ---
 - lineinfile: dest=/etc/mongod.conf line="port={{mongo_port}}" regexp="^port(\s*)="
   register: mongo_port_config
+  when: not docker
+
 - lineinfile: dest=/etc/mongod.conf line="bind_ip={{mongo_host}}" regexp="^bind_ip(\s*)="
   register: mongo_ip_config
+  when: not docker
+
 - lineinfile: dest=/etc/mongod.conf line="replSet=rs0" regexp="^replSet(\s*)="
   register: mongo_replSet_config
+  when: not docker
+
 # Increasing the oplog size make avoid the ES exceptions:
 # "River out of sync with oplog.rs collection"
 # https://github.com/richardwilly98/elasticsearch-river-mongodb/issues/233
@@ -14,7 +20,7 @@
   
 - name: Restart mongod
   service: name=mongod state=restarted
-  when: mongo_port_config.changed or mongo_ip_config.changed or mongo_replSet_config.changed or mongo_oplogSize_config.changed
+  when: not docker and (mongo_port_config.changed or mongo_ip_config.changed or mongo_replSet_config.changed or mongo_oplogSize_config.changed)
 
 - name: Waiting for mongo restart
   wait_for: port={{mongo_port}} delay=2
