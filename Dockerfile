@@ -12,7 +12,7 @@ RUN apt-get update && apt-get -y install lsb-release &&\
     echo "deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.2 multiverse" > /etc/apt/sources.list.d/mongodb-org-3.2.list &&\
     apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927 &&\
     apt-get update &&\
-    apt-get -y install less vim ansible git sudo mongodb-org-shell &&\
+    apt-get -y install less vim python-pip python-dev git sudo mongodb-org-shell &&\
     apt-get clean all
 
 EXPOSE 80
