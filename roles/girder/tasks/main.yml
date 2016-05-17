@@ -92,6 +92,8 @@
 
   - name: "Ensure grunt is installed"
     command: npm -g install grunt grunt-cli || true
+    args:
+      creates: /usr/bin/grunt
 
   - name: Install local npm requirements
     npm: path=/opt/girder production=yes
