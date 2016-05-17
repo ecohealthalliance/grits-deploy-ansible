@@ -13,7 +13,8 @@ RUN apt-get update && apt-get -y install lsb-release &&\
     apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927 &&\
     apt-get update &&\
     apt-get -y install less vim python-pip python-dev git sudo mongodb-org-shell &&\
-    apt-get clean all
+    apt-get clean all &&\
+    pip install ansible
 
 EXPOSE 80
 EXPOSE 25
