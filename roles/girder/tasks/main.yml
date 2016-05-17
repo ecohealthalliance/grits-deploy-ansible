@@ -90,17 +90,8 @@
     sudo: yes
     sudo_user: "{{ grits_user }}"
 
-  - shell: "grunt --version || false"
-    register: grunt_installed
-
-  - name: Install grunt globally
-    npm: name={{ item }} global=yes
-    with_items:
-      - grunt
-      - grunt-cli
-    sudo: yes
-    sudo_user: root
-    when: not grunt_installed
+  - name: "Ensure grunt is installed"
+    command: npm -g install grunt grunt-cli
 
   - name: Install local npm requirements
     npm: path=/opt/girder production=yes
