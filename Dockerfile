@@ -16,6 +16,7 @@ RUN apt-get update && apt-get -y install lsb-release &&\
     apt-get clean all
 
 EXPOSE 80
+EXPOSE 25
 ADD run.sh /run.sh
 CMD /bin/bash /run.sh
 
