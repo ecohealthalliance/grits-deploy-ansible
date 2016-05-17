@@ -14,7 +14,7 @@ RUN apt-get update && apt-get -y install lsb-release &&\
     apt-get update &&\
     apt-get -y install less vim python-pip python-dev git sudo mongodb-org-shell libffi-dev libssl-dev &&\
     apt-get clean all &&\
-    pip install ansible markupsafe
+    pip install --upgrade setuptools ansible markupsafe
 
 EXPOSE 80
 EXPOSE 25
