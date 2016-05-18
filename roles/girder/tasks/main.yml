@@ -90,13 +90,10 @@
     sudo: yes
     sudo_user: "{{ grits_user }}"
 
-  - name: Install grunt globally
-    npm: name={{ item }} global=yes
-    with_items:
-      - grunt
-      - grunt-cli
-    sudo: yes
-    sudo_user: root
+  - name: "Ensure grunt is installed"
+    command: npm -g install grunt grunt-cli
+    args:
+      creates: /usr/bin/grunt
 
   - name: Install local npm requirements
     npm: path=/opt/girder production=yes
@@ -130,6 +127,9 @@
   # maybe a better way to do this, but we need supervisor to be reloaded now,
   # handlers run at the end
   - include: ../../common/handlers/main.yml
+
+  # Give supervisor time to start up grits
+  - pause: minutes=1
 
   - name: Create admin grits user
     shell: "curl --data \"login=grits&firstName=grits&lastName=grits&password={{girder_admin_password}}&email={{girder_admin_email}}\" http://{{girder_socket_host}}:{{girder_socket_port}}/api/v1/user"

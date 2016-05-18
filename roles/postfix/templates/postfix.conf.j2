@@ -1,5 +1,5 @@
 [program:postfix]
-command=/usr/sbin/postfix
+command=/bin/bash -c "postfix start"
 user=postfix
 autostart=true
 autorestart=unexpected
