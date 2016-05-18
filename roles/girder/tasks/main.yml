@@ -91,7 +91,7 @@
     sudo_user: "{{ grits_user }}"
 
   - name: "Ensure grunt is installed"
-    command: npm -g install grunt grunt-cli || true
+    command: npm -g install grunt grunt-cli
     args:
       creates: /usr/bin/grunt
 
