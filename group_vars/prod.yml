@@ -6,3 +6,6 @@ run_cron_jobs: True
 diagnose_on_launch: False
 domain: grits.ecohealth.io
 public_url: "https://{{ domain }}"
+mongo_url: 172.30.2.123
+celery_broker: "mongodb://172.30.2.123:27017/tasks"
+mongo_host: 172.30.2.123
