@@ -13,8 +13,8 @@
     - node
     - s3restore
     - { role: girder, tags: ["girder"] }
-    - grits-api
-    - download-classifier
+    - { role: grits-api, tags: ["grits-api"] }
+    - { role: download-classifier, tags: ["download-classifier"] }
     - { role: jvm-nlp }
     - { role: diagnostic-dashboard, tags: ["dashboard"] }
     - { role: ansible-elasticsearch, tags: ["elasticsearch"] }
