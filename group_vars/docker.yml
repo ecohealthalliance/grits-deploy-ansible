@@ -1,8 +1,6 @@
 ansible_ec2_public_ipv4: 127.0.0.1
 docker: True
 run_cron_jobs: True
-domain: localhost.localdomain
-public_url: http://{{ domain }}
 grits_api_git_version: "master"
 grits_user_home: "/var/lib/mongo/{{ grits_user }}"
 grits_api_prefix: "{{ grits_user_home }}/grits-api"
