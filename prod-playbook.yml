@@ -7,7 +7,7 @@
   roles:
     #- { role: ansible-swapfile, swapfile_size: 16GB, swapfile_path: "/swapfile", sudo: yes, sudo_user: "root", tags: ["swapfile"] }
     - common
-    - postfix
+    - { role: postfix, tags: ["postfix"] }
     - apache
     #- { role: mongodb, tags: ["mongodb"] }
     - node
