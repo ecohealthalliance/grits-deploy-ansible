@@ -4,7 +4,7 @@ s3_mongo_import_directory: proddump
 s3_dump_directory: proddump
 run_cron_jobs: True
 diagnose_on_launch: False
-domain: grits.ecohealth.io
+domain: grits.eha.io
 public_url: "https://{{ domain }}"
 mongo_url: "mongodb://172.30.2.123:27017"
 celery_broker: "mongodb://172.30.2.123:27017/tasks"
