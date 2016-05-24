@@ -118,5 +118,3 @@ docker: False
 classifier_id: "1456399096"
 disable_postfix: False
 
-domain: localhost.localdomain
-public_url: http://{{ domain }}
