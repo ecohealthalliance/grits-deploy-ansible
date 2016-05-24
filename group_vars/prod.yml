@@ -5,7 +5,7 @@ s3_dump_directory: proddump
 run_cron_jobs: True
 diagnose_on_launch: False
 domain: grits.eha.io
-public_url: "https://{{ domain }}"
+public_url: "http://{{ domain }}"
 mongo_url: "mongodb://172.30.2.123:27017"
 celery_broker: "mongodb://172.30.2.123:27017/tasks"
 mongo_host: 172.30.2.123
