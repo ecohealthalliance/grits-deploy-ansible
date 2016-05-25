@@ -15,7 +15,7 @@
     - { role: girder, tags: ["girder"] }
     - { role: grits-api, tags: ["grits-api"] }
     - { role: download-classifier, tags: ["download-classifier"] }
-    - { role: jvm-nlp }
+    - { role: jvm-nlp, tags: ["jvm-nlp"] }
     - { role: diagnostic-dashboard, tags: ["dashboard"] }
     - { role: ansible-elasticsearch, tags: ["elasticsearch"] }
     - { role: elasticsearch-mongo-river, tags: ["elasticsearch"] }
