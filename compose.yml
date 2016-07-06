@@ -4,6 +4,7 @@ grits:
   ports:
     - "80:80"
     - "25:25"
+    - "443:443"
   restart: always
   environment:
     - GIRDER_MONGO_URI=mongodb://172.30.2.123:27017/girder
