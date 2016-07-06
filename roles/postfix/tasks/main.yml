@@ -14,6 +14,6 @@
 - template: src=postfix.conf.j2 dest=/etc/supervisor/conf.d/postfix.conf
   when: docker
 
-- service: name=supervisor state=restarted
-  when: not docker
+- #service: name=supervisor state=restarted
+  when: docker
 
