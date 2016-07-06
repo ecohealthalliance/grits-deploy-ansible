@@ -25,13 +25,12 @@
 </VirtualHost>
 
 
-{% if not docker %}
 <VirtualHost *:443>
   ServerName {{ apache_url }}
   SSLEngine on
-  SSLCertificateFile /etc/apache2/ssl/apache.crt
-  SSLCertificateKeyFile /etc/apache2/ssl/apache.key
-  SSLCACertificateFile /etc/apache2/ssl/comodo.crt
+  SSLCertificateFile /cert1.pem
+  SSLCertificateKeyFile /privkey1.pem
+  SSLCACertificateFile /fullchain1.pem
   ProxyPreserveHost On
 
   RewriteEngine on
@@ -52,7 +51,6 @@
   ProxyPass / http://localhost:{{ meteor_port }}/
   ProxyPassReverse / http://localhost:{{ meteor_port }}/
 </VirtualHost>
-{% endif%}
 
 
 <VirtualHost *:444>
