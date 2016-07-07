@@ -83,7 +83,7 @@ girder_item_template_source:
               type: string
               index: not_analyzed
 
-mongo_url: localhost
+mongo_url: "mongodb://localhost:27017"
 celery_broker: "mongodb://localhost:27017/tasks"
 
 meteor_port: 3001
