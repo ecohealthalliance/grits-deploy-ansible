@@ -10,9 +10,12 @@
     - mongodb
     - node
     - { role: grits-api, tags: ["gritsapi"] }
+    - { role: girder, tags: ["girder"] }
     - download-classifier
     - { role: jvm-nlp, tags: ["jvmnlp"] }
     - { role: diagnostic-dashboard, tags: ["dashboard"] }
+    - { role: ansible-elasticsearch, tags: ["elasticsearch"] }
+    - { role: elasticsearch-mongo-river, tags: ["elasticsearch"] }
   vars_files:
     - secure.yml
   tasks:
