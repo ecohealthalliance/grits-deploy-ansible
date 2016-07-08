@@ -1,7 +1,7 @@
 <VirtualHost *:80>
   ServerName {{ apache_url }}
   RewriteEngine on
-{% if not docker %}
+{% if docker %}
   RewriteCond %{HTTPS} off
   RewriteRule ^(.*) https://%{HTTP_HOST}%{REQUEST_URI}
 {% else %}
