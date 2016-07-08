@@ -21,11 +21,10 @@
 - name: Setting current classifier to the latest
   file: src={{classifier_path}} dest={{ grits_api_prefix }}/current_classifier state=link force=yes
   register: classifier_symlink
-  sudo: true
   notify: restart grits api group
 
 - name: Loading mongo keywords used for annotation
   shell: "{{ grits_env }}/bin/python mongo_import_keywords.py"
   args:
-    chdir: "{{ grits_api_prefix }}"
+    chdir: "{{ grits_api_prefix }}/annie"
   when: classifier_symlink.changed
