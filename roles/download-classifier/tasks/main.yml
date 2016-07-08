@@ -26,5 +26,5 @@
 - name: Loading mongo keywords used for annotation
   shell: "{{ grits_env }}/bin/python mongo_import_keywords.py"
   args:
-    chdir: "{{ grits_api_prefix }}/annie"
+    chdir: "{{ annie_prefix }}"
   when: classifier_symlink.changed
