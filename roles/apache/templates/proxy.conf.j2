@@ -24,7 +24,7 @@
 {% endif%}
 </VirtualHost>
 
-
+{% if docker %}
 <VirtualHost *:443>
   ServerName {{ apache_url }}
   SSLEngine on
@@ -51,7 +51,7 @@
   ProxyPass / http://localhost:{{ meteor_port }}/
   ProxyPassReverse / http://localhost:{{ meteor_port }}/
 </VirtualHost>
-
+{% endif%}
 
 <VirtualHost *:444>
   ServerName {{ apache_url }}
