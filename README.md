@@ -21,8 +21,7 @@ Also, change the domains in group_vars/dev and group_vars/prod to the domains yo
 edit the inventory.ini file to add instance ip addresses you want to deploy to.
 
 ### Deploying in a docker container
-`ansible-playbook /opt/grits-deploy-ansible/prod-playbook.yml -i /opt/grits-deploy-ansible/prod-inventory.ini -c local --vault-password-file=~/vault-password`
-
+`ansible-playbook prod-playbook.yml -i prod-inventory.ini -c local --ask-vault-pass`
 
 
 ### Deploying to an AWS instance
