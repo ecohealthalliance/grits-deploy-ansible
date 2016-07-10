@@ -19,7 +19,7 @@
   vars_files:
     - secure.yml
   vars:
-    skip_geonames: true
+    skip_geonames: True
   tasks:
     #########################################################################
     # Place security related commands in security.sh instead of ansible plays
