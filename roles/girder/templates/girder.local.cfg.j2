@@ -1,5 +1,5 @@
 [global]
-server.socket_host: "{{ eth0_ip_address }}"
+server.socket_host: "{{ ansible_eth0.ipv4.address }}"
 server.socket_port: {{ girder_socket_port }}
 tools.proxy.on: True
 tools.proxy.base: "{{ public_url }}{{ girder_mount_path }}"

@@ -1,7 +1,7 @@
 aws_access_key = '{{ classifier_data_access_key | default("") }}'
 aws_secret_key = '{{ classifier_data_secret_key | default("") }}'
 BROKER_URL = '{{ celery_broker }}'
-mongo_url = 'mongodb://{{ eth0_ip_address }}:27017'
+mongo_url = 'mongodb://{{ ansible_eth0.ipv4.address }}:27017'
 bing_translate_id = '{{ bing_translate_id | default("") }}'
 bing_translate_secret = '{{ bing_translate_secret | default("") }}'
 api_key = '{{ grits_api_key }}'
