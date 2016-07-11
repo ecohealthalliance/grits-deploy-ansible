@@ -7,7 +7,6 @@
   roles:
     - common
     - apache
-    - mongodb
     - node
     - { role: grits-api, tags: ["gritsapi"] }
     - { role: girder, tags: ["girder"] }
