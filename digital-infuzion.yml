@@ -9,7 +9,6 @@
     - apache
     - node
     - { role: grits-api, tags: ["gritsapi"] }
-    - { role: girder, tags: ["girder"] }
     - { role: download-classifier, tags: ["download-classifer"] }
     - { role: jvm-nlp, tags: ["jvmnlp"] }
     - { role: diagnostic-dashboard, tags: ["dashboard"] }

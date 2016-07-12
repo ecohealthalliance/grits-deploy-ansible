@@ -12,7 +12,6 @@
     #- { role: mongodb, tags: ["mongodb"] }
     - node
     - s3restore
-    - { role: girder, tags: ["girder"] }
     - { role: grits-api, tags: ["grits-api"] }
     - { role: download-classifier, tags: ["download-classifier"] }
     - { role: jvm-nlp, tags: ["jvm-nlp"] }
