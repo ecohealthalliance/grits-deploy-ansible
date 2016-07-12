@@ -40,6 +40,6 @@ find $GRITS_HOME -name .git\* -exec rm -fr {} \;
 #Get rid of SSH server and any keys (Must stay as last task)
 rm -fr /root/.ssh || echo "/root/.ssh not found"
 rm -fr $GRITS_HOME/.ssh || echo "$GRITS_HOME/.ssh not found"
-apt-get -y purge openssh-server
-pkill -9 ssh
+apt-get -y purge openssh-server || echo "OpenSSH was not installed"
+pkill -9 ssh || true
 
