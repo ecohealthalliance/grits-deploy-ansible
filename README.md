@@ -20,7 +20,7 @@ Before using this repository, use [ansible-vault](http://docs.ansible.com/playbo
 Also, change the domains in group_vars/dev and group_vars/prod to the domains you will deploy to, and
 edit the inventory.ini file to add instance ip addresses you want to deploy to.
 
-### Deploying in a docker container
+### Deploying inside of a docker container
 `ansible-playbook prod-playbook.yml -i prod-inventory.ini -c local --ask-vault-pass`
 
 
