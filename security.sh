@@ -29,17 +29,17 @@ sed -i "s/GIRDER_DATA_ACCESS_KEY\=".*"//" $GRITS_HOME/grits_config
 sed -i "s/GIRDER_DATA_SECRET_KEY\=".*"//" $GRITS_HOME/grits_config
 
 #Remove bash histories
-rm /root/.bash_history
+rm /root/.bash_history || echo "/root/.bash_history not found"
 ln -s /dev/null /root/.bash_history
-rm $GRITS_HOME/.bash_history
+rm $GRITS_HOME/.bash_history || echo "$GRITS_HOME/.bash_history not found"
 ln -s /dev/null $GRITS_HOME/.bash_history
 
 #Remove git revision histories
 find $GRITS_HOME -name .git\* -exec rm -fr {} \;
 
 #Get rid of SSH server and any keys (Must stay as last task)
-rm -fr /root/.ssh
-rm -fr $GRITS_HOME/.ssh
+rm -fr /root/.ssh || echo "/root/.ssh not found"
+rm -fr $GRITS_HOME/.ssh || echo "$GRITS_HOME/.ssh not found"
 apt-get -y purge openssh-server
 pkill -9 ssh
 
