@@ -17,7 +17,6 @@
     - { role: jvm-nlp, tags: ["jvm-nlp"] }
     - { role: diagnostic-dashboard, tags: ["dashboard"] }
     - { role: ansible-elasticsearch, tags: ["elasticsearch"] }
-    - { role: elasticsearch-mongo-river, tags: ["elasticsearch"] }
   vars_files:
     - secure.prod.yml
   sudo: yes
