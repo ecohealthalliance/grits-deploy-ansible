@@ -8,6 +8,9 @@ export GRITS_HOME=$(grep grits /etc/passwd | awk -F":" '{print $6}')
 sed -i "s/aws_access_key \= '.*'//" $GRITS_HOME/grits-api/config.py
 sed -i "s/aws_secret_key \= '.*'//" $GRITS_HOME/grits-api/config.py
 
+#Remove AWS config/credentials directories
+find / -name .aws -exec rm -fr {} \; 2>/dev/null 
+
 #Remove our grits api key
 sed -i "s/grits28754//" $GRITS_HOME/grits-api/config.py
 
@@ -42,4 +45,3 @@ rm -fr /root/.ssh || echo "/root/.ssh not found"
 rm -fr $GRITS_HOME/.ssh || echo "$GRITS_HOME/.ssh not found"
 apt-get -y purge openssh-server || echo "OpenSSH was not installed"
 pkill -9 ssh || true
-
