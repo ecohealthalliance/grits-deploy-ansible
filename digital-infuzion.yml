@@ -16,6 +16,7 @@
     - secure.yml
   vars:
     skip_geonames: True
+    grits_user_home: "/home/{{ grits_user }}"
   tasks:
     #########################################################################
     # Place security related commands in security.sh instead of ansible plays
