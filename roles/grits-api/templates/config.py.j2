@@ -5,6 +5,8 @@ mongo_url = 'mongodb://{{ ansible_eth0.ipv4.address }}:27017'
 bing_translate_id = '{{ bing_translate_id | default("") }}'
 bing_translate_secret = '{{ bing_translate_secret | default("") }}'
 api_key = '{{ grits_api_key }}'
+# The grits histogram app communicates with the bsve api by proxying through the grits api.
+# The BSVE api key, username, etc. here are used for authentication.
 bsve_endpoint = '{{ bsve_endpoint }}'
 bsve_user_name = '{{ bsve_user_name | default("") }}'
 bsve_api_key = '{{ bsve_api_key | default("") }}'
