@@ -24,13 +24,18 @@
 {% endif%}
 </VirtualHost>
 
-{% if docker %}
 <VirtualHost *:443>
   ServerName {{ apache_url }}
   SSLEngine on
+{% if docker %}
   SSLCertificateFile /cert1.pem
   SSLCertificateKeyFile /privkey1.pem
   SSLCACertificateFile /fullchain1.pem
+{% else %}
+  SSLCertificateFile /etc/letsencrypt/live/grits-dev.ecohealthalliance.org/cert.pem
+  SSLCertificateKeyFile /etc/letsencrypt/live/grits-dev.ecohealthalliance.org/privkey.pem
+  SSLCACertificateFile /etc/letsencrypt/live/grits-dev.ecohealthalliance.org/fullchain.pem
+{% endif%}
   ProxyPreserveHost On
 
   RewriteEngine on
@@ -51,7 +56,6 @@
   ProxyPass / http://localhost:{{ meteor_port }}/
   ProxyPassReverse / http://localhost:{{ meteor_port }}/
 </VirtualHost>
-{% endif%}
 
 <VirtualHost *:444>
   ServerName {{ apache_url }}
