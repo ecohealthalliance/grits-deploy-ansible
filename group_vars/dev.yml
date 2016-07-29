@@ -5,7 +5,7 @@ s3_dump_directory: devdump
 run_cron_jobs: True
 diagnose_on_launch: False
 elasticsearch_plugin_marvel_version: 1.0.2
-domain: grits-dev.ecohealth.io
+domain: grits-dev.ecohealthalliance.org
 public_url: "https://{{ domain }}"
 dev: True
 
