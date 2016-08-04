@@ -24,7 +24,7 @@
   notify: restart grits api group
 
 - name: Loading mongo keywords used for annotation
-  shell: "{{ grits_env }}/bin/python {{ annie_prefix }}/mongo_import_keywords.py --mongo_url {{ lookup('env','MONGO_URL') }}"
+  shell: "{{ grits_env }}/bin/python {{ annie_prefix }}/mongo_import_keywords.py --mongo_url {{ mongo_url }}"
   args:
     chdir: "{{ grits_api_prefix }}"
   when: classifier_symlink.changed
