@@ -2,7 +2,7 @@ grits:
   image: grits
   container_name: grits
   ports:
-    - "80:80"
+    - "3000:80"
     - "25:25"
     - "443:443"
   restart: always
